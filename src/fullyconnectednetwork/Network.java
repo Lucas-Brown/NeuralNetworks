@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 public class Network {
 
-    public static final double LEARNING_RATE = 0.001;
+    public static final double LEARNING_RATE = 0.01;
 
     public static final int ZERO_OR_ONE = 0;
     public static final int NEGATIVE_ONE_OR_ONE = 1;
@@ -21,7 +21,7 @@ public class Network {
     public static final int RECTIFIER = 6; // 0 - infinity
 
     public final int ACTIVATION_FUNCTION;
-    public final double multiplier;
+    //public final double multiplier;
 
     private double[][] output;
     private double[][][] weights;
@@ -43,7 +43,7 @@ public class Network {
     public double[][][] biasCoefficients;
 
     public Network(int ActivationFunction, int... NETWORK_LAYER_SIZES) {
-        this.multiplier = 1;
+        //this.multiplier = 1;
         this.ACTIVATION_FUNCTION = ActivationFunction;
         this.NETWORK_LAYER_SIZES = NETWORK_LAYER_SIZES;
         this.INPUT_SIZE = NETWORK_LAYER_SIZES[0];
@@ -77,7 +77,7 @@ public class Network {
     }
 
     public Network(int ActivationFunction, double multiplier, int... NETWORK_LAYER_SIZES) {
-        this.multiplier = multiplier;
+        //this.multiplier = multiplier;
         this.ACTIVATION_FUNCTION = ActivationFunction;
         this.NETWORK_LAYER_SIZES = NETWORK_LAYER_SIZES;
         this.INPUT_SIZE = NETWORK_LAYER_SIZES[0];
@@ -137,136 +137,136 @@ public class Network {
                 this.rectifierLoops(input);
                 break;
         }
-        return output[NETWORK_SIZE - 1];
+        return this.output[this.NETWORK_SIZE - 1];
     }
 
     private void unitStepLoops(double... input) {
         this.output[0] = input;
-        for (int layer = 1; layer < NETWORK_SIZE; layer++) {
-            for (int neuron = 0; neuron < NETWORK_LAYER_SIZES[layer]; neuron++) {
+        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
+            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 
-                double sum = bias[layer][neuron];
-                for (int prevNeuron = 0; prevNeuron < NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
-                    sum += output[layer - 1][prevNeuron] * weights[layer][neuron][prevNeuron];
+                double sum = this.bias[layer][neuron];
+                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
+                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
-                output[layer][neuron] = this.unitStep(sum);
-                output_derivative[layer][neuron] = output[layer][neuron];
+                this.output[layer][neuron] = this.unitStep(sum);
+                this.output_derivative[layer][neuron] = this.output[layer][neuron];
             }
         }
     }
 
     private void signumLoops(double... input) {
         this.output[0] = input;
-        for (int layer = 1; layer < NETWORK_SIZE; layer++) {
-            for (int neuron = 0; neuron < NETWORK_LAYER_SIZES[layer]; neuron++) {
+        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
+            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 
-                double sum = bias[layer][neuron];
-                for (int prevNeuron = 0; prevNeuron < NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
-                    sum += output[layer - 1][prevNeuron] * weights[layer][neuron][prevNeuron];
+                double sum = this.bias[layer][neuron];
+                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
+                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
-                output[layer][neuron] = this.signum(sum);
-                output_derivative[layer][neuron] = output[layer][neuron];
+                this.output[layer][neuron] = this.signum(sum);
+                this.output_derivative[layer][neuron] = this.output[layer][neuron];
             }
         }
     }
 
     private void sigmoidLoops(double... input) {
         this.output[0] = input;
-        for (int layer = 1; layer < NETWORK_SIZE; layer++) {
-            for (int neuron = 0; neuron < NETWORK_LAYER_SIZES[layer]; neuron++) {
+        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
+            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 
-                double sum = bias[layer][neuron];
-                for (int prevNeuron = 0; prevNeuron < NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
-                    sum += output[layer - 1][prevNeuron] * weights[layer][neuron][prevNeuron];
+                double sum = this.bias[layer][neuron];
+                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
+                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
-                output[layer][neuron] = this.sigmoid(sum);
-                output_derivative[layer][neuron] = Math.exp(-sum / this.multiplier) / Math.pow((1 + Math.exp(-sum / this.multiplier)), 2);
+                this.output[layer][neuron] = this.sigmoid(sum);
+                this.output_derivative[layer][neuron] = Math.exp(-sum) / Math.pow((1 + Math.exp(-sum)), 2);
             }
         }
     }
 
     private void hyperbolicTangentLoops(double... input) {
         this.output[0] = input;
-        for (int layer = 1; layer < NETWORK_SIZE; layer++) {
-            for (int neuron = 0; neuron < NETWORK_LAYER_SIZES[layer]; neuron++) {
+        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
+            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 
-                double sum = bias[layer][neuron];
-                for (int prevNeuron = 0; prevNeuron < NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
-                    sum += output[layer - 1][prevNeuron] * weights[layer][neuron][prevNeuron];
+                double sum = this.bias[layer][neuron];
+                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
+                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
-                output[layer][neuron] = this.hyperbolicTangent(sum);
-                output_derivative[layer][neuron] = this.multiplier * ((Math.exp(2 * sum / this.multiplier) - 1) / (Math.exp(2 * sum / this.multiplier) + 1));
+                this.output[layer][neuron] = this.hyperbolicTangent(sum);
+                this.output_derivative[layer][neuron] = 4.0 / Math.pow((Math.exp(sum) + Math.exp(-sum)), 2);
             }
         }
     }
 
     private void jumpStepLoops(double... input) {
         this.output[0] = input;
-        for (int layer = 1; layer < NETWORK_SIZE; layer++) {
-            for (int neuron = 0; neuron < NETWORK_LAYER_SIZES[layer]; neuron++) {
+        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
+            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 
-                double sum = bias[layer][neuron];
-                for (int prevNeuron = 0; prevNeuron < NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
-                    sum += output[layer - 1][prevNeuron] * weights[layer][neuron][prevNeuron];
+                double sum = this.bias[layer][neuron];
+                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
+                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
-                output[layer][neuron] = this.jumpStep(sum);
-                output_derivative[layer][neuron] = output[layer][neuron];
+                this.output[layer][neuron] = this.jumpStep(sum);
+                this.output_derivative[layer][neuron] = this.output[layer][neuron];
             }
         }
     }
 
     private void jumpSignumLoops(double... input) {
         this.output[0] = input;
-        for (int layer = 1; layer < NETWORK_SIZE; layer++) {
-            for (int neuron = 0; neuron < NETWORK_LAYER_SIZES[layer]; neuron++) {
+        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
+            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 
-                double sum = bias[layer][neuron];
-                for (int prevNeuron = 0; prevNeuron < NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
-                    sum += output[layer - 1][prevNeuron] * weights[layer][neuron][prevNeuron];
+                double sum = this.bias[layer][neuron];
+                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
+                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
-                output[layer][neuron] = this.jumpSignum(sum);
-                output_derivative[layer][neuron] = output[layer][neuron];
+                this.output[layer][neuron] = this.jumpSignum(sum);
+                this.output_derivative[layer][neuron] = this.output[layer][neuron];
             }
         }
     }
 
     private void rectifierLoops(double... input) {
         this.output[0] = input;
-        for (int layer = 1; layer < NETWORK_SIZE; layer++) {
-            for (int neuron = 0; neuron < NETWORK_LAYER_SIZES[layer]; neuron++) {
+        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
+            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 
-                double sum = bias[layer][neuron];
-                for (int prevNeuron = 0; prevNeuron < NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
-                    sum += output[layer - 1][prevNeuron] * weights[layer][neuron][prevNeuron];
+                double sum = this.bias[layer][neuron];
+                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
+                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
-                output[layer][neuron] = this.rectifier(sum);
-                output_derivative[layer][neuron] = output[layer][neuron];
+                this.output[layer][neuron] = this.rectifier(sum);
+                this.output_derivative[layer][neuron] = this.output[layer][neuron];
             }
         }
     }
 
     public void train(TrainSet set, int loops, int batch_size) {
-        if (set.INPUT_SIZE != INPUT_SIZE || set.OUTPUT_SIZE != OUTPUT_SIZE) {
+        if (set.INPUT_SIZE != this.INPUT_SIZE || set.OUTPUT_SIZE != this.OUTPUT_SIZE) {
             return;
         }
         for (int i = 0; i < loops; i++) {
             TrainSet batch = set.extractBatch(batch_size);
             double mse = MSE(batch);
             for (int b = 0; b < batch_size; b++) {
-                this.train(batch.getInput(b), batch.getOutput(b), LEARNING_RATE * mse);
+                this.train(batch.getInput(b), batch.getOutput(b), Network.LEARNING_RATE * mse);
             }
             System.out.println(mse);
         }
     }
 
     public void train(TrainSet set, int loops, int batch_size, int saveInterval, String file) {
-        if (set.INPUT_SIZE != INPUT_SIZE || set.OUTPUT_SIZE != OUTPUT_SIZE) {
+        if (set.INPUT_SIZE != this.INPUT_SIZE || set.OUTPUT_SIZE != this.OUTPUT_SIZE) {
             return;
         }
         for (int i = 0; i < loops; i++) {
             TrainSet batch = set.extractBatch(batch_size);
             for (int b = 0; b < batch_size; b++) {
-                this.train(batch.getInput(b), batch.getOutput(b), LEARNING_RATE);
+                this.train(batch.getInput(b), batch.getOutput(b), this.LEARNING_RATE);
             }
             System.out.println(MSE(batch));
             if (i % saveInterval == 0) {
@@ -285,7 +285,7 @@ public class Network {
     }
 
     public void train(double[] input, double[] target, double eta) {
-        if (input.length != INPUT_SIZE || target.length != OUTPUT_SIZE) {
+        if (input.length != this.INPUT_SIZE || target.length != this.OUTPUT_SIZE) {
             return;
         }
         calculate(input);
@@ -294,13 +294,13 @@ public class Network {
     }
 
     public double MSE(double[] input, double[] target) {
-        if (input.length != INPUT_SIZE || target.length != OUTPUT_SIZE) {
+        if (input.length != this.INPUT_SIZE || target.length != this.OUTPUT_SIZE) {
             return 0;
         }
         this.calculate(input);
         double v = 0;
         for (int i = 0; i < target.length; i++) {
-            v += (target[i] - output[NETWORK_SIZE - 1][i]) * (target[i] - output[NETWORK_SIZE - 1][i]);
+            v += (target[i] - this.output[this.NETWORK_SIZE - 1][i]) * (target[i] - this.output[NETWORK_SIZE - 1][i]);
         }
         return v / (2d * target.length);
     }
@@ -314,78 +314,72 @@ public class Network {
     }
 
     public void backpropError(double[] target) {
-        for (int neuron = 0; neuron < NETWORK_LAYER_SIZES[NETWORK_SIZE - 1]; neuron++) {
-            error_signal[NETWORK_SIZE - 1][neuron] = (output[NETWORK_SIZE - 1][neuron] - target[neuron])
-                    * output_derivative[NETWORK_SIZE - 1][neuron];
+        for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[this.NETWORK_SIZE - 1]; neuron++) {
+        	this.error_signal[this.NETWORK_SIZE - 1][neuron] = (this.output[this.NETWORK_SIZE - 1][neuron] - target[neuron])
+                    * this.output_derivative[this.NETWORK_SIZE - 1][neuron];
         }
-        for (int layer = NETWORK_SIZE - 2; layer > 0; layer--) {
-            for (int neuron = 0; neuron < NETWORK_LAYER_SIZES[layer]; neuron++) {
+        for (int layer = this.NETWORK_SIZE - 2; layer > 0; layer--) {
+            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
                 double sum = 0;
-                for (int nextNeuron = 0; nextNeuron < NETWORK_LAYER_SIZES[layer + 1]; nextNeuron++) {
-                    sum += weights[layer + 1][nextNeuron][neuron] * error_signal[layer + 1][nextNeuron];
+                for (int nextNeuron = 0; nextNeuron < this.NETWORK_LAYER_SIZES[layer + 1]; nextNeuron++) {
+                    sum += this.weights[layer + 1][nextNeuron][neuron] * this.error_signal[layer + 1][nextNeuron];
                 }
-                this.error_signal[layer][neuron] = sum * output_derivative[layer][neuron];
+                this.error_signal[layer][neuron] = sum * this.output_derivative[layer][neuron];
             }
         }
     }
 
     public void updateWeights(double eta) {
-        for (int layer = 1; layer < NETWORK_SIZE; layer++) {
+        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < NETWORK_LAYER_SIZES[layer]; neuron++) {
 
-                double delta = -eta * error_signal[layer][neuron];
-                bias[layer][neuron] += delta;
+                double delta = -eta * this.error_signal[layer][neuron];
+                this.bias[layer][neuron] += delta;
 
-                for (int prevNeuron = 0; prevNeuron < NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
-                    weights[layer][neuron][prevNeuron] += delta * output[layer - 1][prevNeuron];
+                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
+                	this.weights[layer][neuron][prevNeuron] += delta * this.output[layer - 1][prevNeuron];
                 }
             }
         }
     }
 
     private double sigmoid(double x) {// 0 - 1
-        return this.multiplier / (1 + Math.exp(-x / this.multiplier));
+        return 1 / (1 + Math.exp(-x));
     }
 
     public double hyperbolicTangent(double x) { // -1 - 1
-        return this.multiplier * ((Math.exp(x / this.multiplier) - Math.exp(-x / this.multiplier)) / (Math.exp(x / this.multiplier) + Math.exp(-x / this.multiplier)));
+    	return Math.tanh(x);
     }
 
     private double unitStep(double x) {// 1 or 0
-        if (x > this.multiplier / 2) {
+        if (x > 0.5) {
             return 1;
-        } else if (x < this.multiplier / 2) {
-            return 0;
         } else {
-            return 0.5;
+            return 0;
         }
     }
 
     private double signum(double x) {//values -1 or 1
-        if (x > this.multiplier / 2) {
+        if (x >= 0) {
             return 1;
-        } else if (x < this.multiplier / 2) {
-            return -1;
         } else {
-            return 0;
+        	return -1;
         }
     }
 
     private double jumpStep(double x) {
-        if (x > this.multiplier) {
-            return this.multiplier;
-        } else if (x < 0) {
-            return 0;
+        if (x > 0.5) {
+            return 1;
         } else {
-            return Math.round(x);
-        }
+            return 0;
+        } 
     }
 
     private double jumpSignum(double x) {
-        if (x > this.multiplier) {
-            return this.multiplier;
-        } else if (x < -this.multiplier) {
-            return -this.multiplier;
+        if (x > 1) {
+            return 1;
+        } else if (x < -1) {
+            return -1;
         } else {
             return Math.round(x);
         }
@@ -400,8 +394,7 @@ public class Network {
 
         Network.addPerfectExampleData(network);
 
-        //network.addData(new double[]{0,0}, new double[]{0});
-        network.train(10000);
+        network.train(1000);
         for (int i = 0; i < network.set.size(); i++) {
             System.out.println(Arrays.toString(network.set.getInput(i)) + " >--< " + Arrays.toString(network.calculate(network.set.getInput(i))) + 
                     ", should be: " + Arrays.toString(network.set.getOutput(i)));
@@ -489,7 +482,7 @@ public class Network {
         Node netw = new Node("Network");
         Node ly = new Node("Layers");
         netw.addAttribute(new Attribute("Activation Function", Integer.toString(this.ACTIVATION_FUNCTION)));
-        netw.addAttribute(new Attribute("Multiplier", Double.toString(this.multiplier)));
+        //netw.addAttribute(new Attribute("Multiplier", Double.toString(this.multiplier)));
         netw.addAttribute(new Attribute("sizes", Arrays.toString(this.NETWORK_LAYER_SIZES)));
         netw.addChild(ly);
         root.addChild(netw);
@@ -506,7 +499,7 @@ public class Network {
 
             for (int we = 0; we < this.weights[layer].length; we++) {
 
-                w.addAttribute("" + we, Arrays.toString(weights[layer][we]));
+                w.addAttribute("" + we, Arrays.toString(this.weights[layer][we]));
             }
         }
         p.close();
