@@ -552,4 +552,17 @@ public class Network {
         return ne;
 
     }
+    
+    public static Network copy(Network network) {
+        Network coppied = new Network(network.ACTIVATION_FUNCTION, network.multiplier, network.NETWORK_LAYER_SIZES);
+        for (int i = 0; i < network.bias.length; i++) {
+            System.arraycopy(network.bias[i], 0, coppied.bias[i], 0, network.bias[i].length);
+        }
+        for (int i = 1; i < network.weights.length; i++) {
+            for (int j = 0; j < network.weights[i].length; j++) {
+                System.arraycopy(network.weights[i][j], 0, coppied.weights[i][j], 0, network.weights[i][j].length);
+            }
+        }
+        return coppied;
+    }
 }

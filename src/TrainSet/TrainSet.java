@@ -13,9 +13,6 @@ import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Created by Luecx on 09.08.2017.
- */
 public class TrainSet {
 
     public final int INPUT_SIZE;
