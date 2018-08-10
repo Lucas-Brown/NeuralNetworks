@@ -23,7 +23,7 @@ public class Population {
     }
 
     public static void main(String[] args) {
-        Population pop = new Population(75,Network.ZERO_TO_ONE, 10.0, 2, 2, 1); // initialize population
+        Population pop = new Population(75, Network.ZERO_TO_ONE, 10.0, 2, 2, 1); // initialize population
         
         for (int i = 0; i < 5; i++) { // load current top 5 networks
         	try {
