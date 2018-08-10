@@ -24,8 +24,8 @@ public class Network {
     public final double multiplier;
 
     private double[][] output;
-    private double[][][] weights;
-    private double[][] bias;
+    public double[][][] weights;
+    public double[][] bias;
 
     private double[][] error_signal;
     private double[][] output_derivative;
