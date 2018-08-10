@@ -1,9 +1,10 @@
 package genetics;
 
-import fullyconnectednetwork.Network;
 import java.io.File;
 import java.math.BigInteger;
 import java.util.Arrays;
+
+import fullyConnectedNetwork.Network;
 
 public class Population {
 

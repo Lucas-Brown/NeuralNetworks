@@ -2,7 +2,7 @@ package genetics;
 
 import java.util.Arrays;
 
-import fullyconnectednetwork.Network;
+import fullyConnectedNetwork.Network;
 import parser.Attribute;
 import parser.Node;
 import parser.Parser;

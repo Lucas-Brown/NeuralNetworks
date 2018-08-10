@@ -1,10 +1,10 @@
-package fullyconnectednetwork;
+package fullyConnectedNetwork;
 
 import parser.Attribute;
 import parser.Node;
 import parser.Parser;
 import parser.ParserTools;
-import TrainSet.TrainSet;
+import trainSet.TrainSet;
 
 import java.util.Arrays;
 
@@ -23,12 +23,12 @@ public class Network {
     public final int ACTIVATION_FUNCTION;
     public final double multiplier;
 
-    private double[][] output;
+    public double[][] output;
     public double[][][] weights;
     public double[][] bias;
 
     private double[][] error_signal;
-    private double[][] output_derivative;
+    protected double[][] output_derivative;
 
     public final int[] NETWORK_LAYER_SIZES;
     public final int INPUT_SIZE;
@@ -351,15 +351,15 @@ public class Network {
         }
     }
 
-    private double sigmoid(double x) {// 0 - 1
+    protected double sigmoid(double x) {// 0 - 1
         return 1 / (1 + Math.exp(-x));
     }
 
-    public double hyperbolicTangent(double x) { // -1 - 1
+    protected double hyperbolicTangent(double x) { // -1 - 1
     	return Math.tanh(x);
     }
 
-    private double unitStep(double x) {// 1 or 0
+    protected double unitStep(double x) {// 1 or 0
         if (x > 0.5) {
             return 1;
         } else {
@@ -367,7 +367,7 @@ public class Network {
         }
     }
 
-    private double signum(double x) {//values -1 or 1
+    protected double signum(double x) {//values -1 or 1
         if (x >= 0) {
             return 1;
         } else {
@@ -375,7 +375,7 @@ public class Network {
         }
     }
 
-    private double jumpStep(double x) {
+    protected double jumpStep(double x) {
         if (x > 0.5) {
             return 1;
         } else {
@@ -383,7 +383,7 @@ public class Network {
         } 
     }
 
-    private double jumpSignum(double x) {
+    protected double jumpSignum(double x) {
         if (x > 1) {
             return 1;
         } else if (x < -1) {
@@ -393,7 +393,7 @@ public class Network {
         }
     }
 
-    private double rectifier(double x) {
+    protected double rectifier(double x) {
         return Math.log(1 + Math.exp(x));
     }
 

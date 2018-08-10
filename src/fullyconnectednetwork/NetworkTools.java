@@ -1,4 +1,4 @@
-package fullyconnectednetwork;
+package fullyConnectedNetwork;
 
 public class NetworkTools {
 

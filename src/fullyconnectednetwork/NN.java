@@ -1,4 +1,4 @@
-package fullyconnectednetwork;
+package fullyConnectedNetwork;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,7 +9,8 @@ import java.util.Arrays;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import TrainSet.TrainSet;
+
+import trainSet.TrainSet;
 
 public class NN {
 
