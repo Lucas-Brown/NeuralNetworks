@@ -4,7 +4,7 @@ import parser.Attribute;
 import parser.Node;
 import parser.Parser;
 import parser.ParserTools;
-import trainset.TrainSet;
+import TrainSet.TrainSet;
 
 import java.util.Arrays;
 

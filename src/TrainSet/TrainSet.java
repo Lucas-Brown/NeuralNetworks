@@ -1,4 +1,4 @@
-package trainset;
+package TrainSet;
 
 import fullyconnectednetwork.NetworkTools;
 import java.io.FileNotFoundException;
