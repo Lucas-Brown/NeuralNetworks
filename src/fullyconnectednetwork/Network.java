@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 public class Network {
 
-    public static final double LEARNING_RATE = 0.01;
+    public static final double LEARNING_RATE = 0.001;
 
     public static final int ZERO_OR_ONE = 0;
     public static final int NEGATIVE_ONE_OR_ONE = 1;
@@ -21,7 +21,7 @@ public class Network {
     public static final int RECTIFIER = 6; // 0 - infinity
 
     public final int ACTIVATION_FUNCTION;
-    //public final double multiplier;
+    public final double multiplier;
 
     private double[][] output;
     private double[][][] weights;
@@ -35,15 +35,15 @@ public class Network {
     public final int OUTPUT_SIZE;
     public final int NETWORK_SIZE;
 
-    public double[][][][] weightDataPoints;
-    public double[][][] biasDataPoints;
-    public double[][][][] weightDerivativePoints;
-    public double[][][] biasDerivativePoints;
-    public double[][][][] weightCoefficients;
-    public double[][][] biasCoefficients;
+    //public double[][][][] weightDataPoints;
+    //public double[][][] biasDataPoints;
+    //public double[][][][] weightDerivativePoints;
+    //public double[][][] biasDerivativePoints;
+    //public double[][][][] weightCoefficients;
+    //public double[][][] biasCoefficients;
 
     public Network(int ActivationFunction, int... NETWORK_LAYER_SIZES) {
-        //this.multiplier = 1;
+        this.multiplier = 1;
         this.ACTIVATION_FUNCTION = ActivationFunction;
         this.NETWORK_LAYER_SIZES = NETWORK_LAYER_SIZES;
         this.INPUT_SIZE = NETWORK_LAYER_SIZES[0];
@@ -54,8 +54,8 @@ public class Network {
         this.weights = new double[NETWORK_SIZE][][];
         this.bias = new double[NETWORK_SIZE][];
 
-        this.weightDataPoints = new double[this.NETWORK_SIZE][][][];
-        this.biasDataPoints = new double[this.NETWORK_SIZE][][];
+        //this.weightDataPoints = new double[this.NETWORK_SIZE][][][];
+        //this.biasDataPoints = new double[this.NETWORK_SIZE][][];
 
         this.error_signal = new double[NETWORK_SIZE][];
         this.output_derivative = new double[NETWORK_SIZE][];
@@ -65,19 +65,24 @@ public class Network {
             this.error_signal[i] = new double[NETWORK_LAYER_SIZES[i]];
             this.output_derivative[i] = new double[NETWORK_LAYER_SIZES[i]];
 
-            this.biasDataPoints[i] = new double[this.NETWORK_LAYER_SIZES[i]][];
+            //this.biasDataPoints[i] = new double[this.NETWORK_LAYER_SIZES[i]][];
 
-            this.bias[i] = NetworkTools.createRandomArray(NETWORK_LAYER_SIZES[i], 0, .5);
+            this.bias[i] = NetworkTools.createRandomArray(NETWORK_LAYER_SIZES[i],  -0.5, 0.7);
 
             if (i > 0) {
-                this.weightDataPoints[i] = new double[this.NETWORK_LAYER_SIZES[i]][this.NETWORK_LAYER_SIZES[i - 1]][];
-                this.weights[i] = NetworkTools.createRandomArray(NETWORK_LAYER_SIZES[i], NETWORK_LAYER_SIZES[i - 1], 0, .5);
+                //this.weightDataPoints[i] = new double[this.NETWORK_LAYER_SIZES[i]][this.NETWORK_LAYER_SIZES[i - 1]][];
+                this.weights[i] = NetworkTools.createRandomArray(NETWORK_LAYER_SIZES[i], NETWORK_LAYER_SIZES[i - 1], -0.5, 0.7);
             }
         }
     }
 
     public Network(int ActivationFunction, double multiplier, int... NETWORK_LAYER_SIZES) {
-        //this.multiplier = multiplier;
+    	if(multiplier <= 0) {
+    		System.out.println("multiplier cannot be less than or equal to zero");
+    		this.multiplier = 1;
+    	} else {
+    		this.multiplier = multiplier;
+    	}
         this.ACTIVATION_FUNCTION = ActivationFunction;
         this.NETWORK_LAYER_SIZES = NETWORK_LAYER_SIZES;
         this.INPUT_SIZE = NETWORK_LAYER_SIZES[0];
@@ -88,8 +93,8 @@ public class Network {
         this.weights = new double[NETWORK_SIZE][][];
         this.bias = new double[NETWORK_SIZE][];
 
-        this.weightDataPoints = new double[this.NETWORK_SIZE][][][];
-        this.biasDataPoints = new double[this.NETWORK_SIZE][][];
+        //this.weightDataPoints = new double[this.NETWORK_SIZE][][][];
+        //this.biasDataPoints = new double[this.NETWORK_SIZE][][];
 
         this.error_signal = new double[NETWORK_SIZE][];
         this.output_derivative = new double[NETWORK_SIZE][];
@@ -99,13 +104,13 @@ public class Network {
             this.error_signal[i] = new double[NETWORK_LAYER_SIZES[i]];
             this.output_derivative[i] = new double[NETWORK_LAYER_SIZES[i]];
 
-            this.biasDataPoints[i] = new double[this.NETWORK_LAYER_SIZES[i]][];
+            //this.biasDataPoints[i] = new double[this.NETWORK_LAYER_SIZES[i]][];
 
-            this.bias[i] = NetworkTools.createRandomArray(NETWORK_LAYER_SIZES[i], -1, 1);
+            this.bias[i] = NetworkTools.createRandomArray(NETWORK_LAYER_SIZES[i],  -0.5, 0.7);
 
             if (i > 0) {
-                this.weightDataPoints[i] = new double[this.NETWORK_LAYER_SIZES[i]][this.NETWORK_LAYER_SIZES[i - 1]][];
-                this.weights[i] = NetworkTools.createRandomArray(NETWORK_LAYER_SIZES[i], NETWORK_LAYER_SIZES[i - 1], -1, 1);
+                //this.weightDataPoints[i] = new double[this.NETWORK_LAYER_SIZES[i]][this.NETWORK_LAYER_SIZES[i - 1]][];
+                this.weights[i] = NetworkTools.createRandomArray(NETWORK_LAYER_SIZES[i], NETWORK_LAYER_SIZES[i - 1], -0.5, 0.7);
             }
         }
     }
@@ -137,6 +142,9 @@ public class Network {
                 this.rectifierLoops(input);
                 break;
         }
+        
+        NetworkTools.multiplyArray(this.output[this.NETWORK_SIZE - 1], this.multiplier);
+        
         return this.output[this.NETWORK_SIZE - 1];
     }
 
@@ -253,7 +261,7 @@ public class Network {
             TrainSet batch = set.extractBatch(batch_size);
             double mse = MSE(batch);
             for (int b = 0; b < batch_size; b++) {
-                this.train(batch.getInput(b), batch.getOutput(b), Network.LEARNING_RATE * mse);
+                this.train(batch.getInput(b), batch.getOutput(b), Network.LEARNING_RATE);
             }
             System.out.println(mse);
         }
@@ -266,7 +274,7 @@ public class Network {
         for (int i = 0; i < loops; i++) {
             TrainSet batch = set.extractBatch(batch_size);
             for (int b = 0; b < batch_size; b++) {
-                this.train(batch.getInput(b), batch.getOutput(b), this.LEARNING_RATE);
+                this.train(batch.getInput(b), batch.getOutput(b), Network.LEARNING_RATE);
             }
             System.out.println(MSE(batch));
             if (i % saveInterval == 0) {
@@ -302,7 +310,7 @@ public class Network {
         for (int i = 0; i < target.length; i++) {
             v += (target[i] - this.output[this.NETWORK_SIZE - 1][i]) * (target[i] - this.output[NETWORK_SIZE - 1][i]);
         }
-        return v / (2d * target.length);
+        return v / (2d * target.length * this.multiplier * this.multiplier);
     }
 
     public double MSE(TrainSet set) {
@@ -315,8 +323,8 @@ public class Network {
 
     public void backpropError(double[] target) {
         for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[this.NETWORK_SIZE - 1]; neuron++) {
-        	this.error_signal[this.NETWORK_SIZE - 1][neuron] = (this.output[this.NETWORK_SIZE - 1][neuron] - target[neuron])
-                    * this.output_derivative[this.NETWORK_SIZE - 1][neuron];
+        	this.error_signal[this.NETWORK_SIZE - 1][neuron] = ((this.output[this.NETWORK_SIZE - 1][neuron] - target[neuron])
+                    * this.output_derivative[this.NETWORK_SIZE - 1][neuron]) / this.multiplier;
         }
         for (int layer = this.NETWORK_SIZE - 2; layer > 0; layer--) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
@@ -390,15 +398,26 @@ public class Network {
     }
 
     public static void main(String[] args) {
-        NN network = new NN(Network.ZERO_TO_ONE, 2, 3, 3, 1);
+        NN network = new NN(Network.ZERO_TO_ONE, 180.0, 2, 3, 1);
 
+        try {
+        	//network.net = Network.loadNetwork("C:\\Users\\Lucas Brown\\Documents\\NetworkSaves\\NetSaves\\PerfectExampleDataNetworkSave.txt");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+        
         Network.addPerfectExampleData(network);
 
-        network.train(1000);
+        network.train(5000);
         for (int i = 0; i < network.set.size(); i++) {
             System.out.println(Arrays.toString(network.set.getInput(i)) + " >--< " + Arrays.toString(network.calculate(network.set.getInput(i))) + 
                     ", should be: " + Arrays.toString(network.set.getOutput(i)));
         }
+        try {
+			network.saveNet("C:\\Users\\Lucas Brown\\Documents\\NetworkSaves\\NetSaves\\PerfectExampleDataNetworkSave.txt");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
 
     private static void addPerfectExampleData(NN network) {
@@ -407,7 +426,7 @@ public class Network {
         }
         for(int degree = 5; degree <= 180; degree += 5){
             for(double speed = .1; speed <= 1; speed += 0.1){
-                network.addData(new double[]{degree, speed}, new double[]{(degree - degree / (90d * speed)) / 180});
+                network.addData(new double[]{degree, speed}, new double[]{network.net.multiplier * ((degree - degree / (90d * speed)) / 180)});
             }
         }
     }
@@ -482,7 +501,7 @@ public class Network {
         Node netw = new Node("Network");
         Node ly = new Node("Layers");
         netw.addAttribute(new Attribute("Activation Function", Integer.toString(this.ACTIVATION_FUNCTION)));
-        //netw.addAttribute(new Attribute("Multiplier", Double.toString(this.multiplier)));
+        netw.addAttribute(new Attribute("Multiplier", Double.toString(this.multiplier)));
         netw.addAttribute(new Attribute("sizes", Arrays.toString(this.NETWORK_LAYER_SIZES)));
         netw.addChild(ly);
         root.addChild(netw);

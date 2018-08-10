@@ -72,6 +72,11 @@ public class TrainSet {
         if(in.length != INPUT_SIZE || expected.length != OUTPUT_SIZE) return;
         data.add(new double[][]{in, expected});
     }
+    
+    public void replaceData(int location, double[] in, double[] expected) {
+        if(in.length != INPUT_SIZE || expected.length != OUTPUT_SIZE) return;
+        this.data.set(location, new double[][]{in, expected});
+    }
 
     public TrainSet extractBatch(int size) {
         if(size > 0 && size <= this.size()) {
