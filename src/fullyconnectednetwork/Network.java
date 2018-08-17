@@ -119,27 +119,28 @@ public class Network {
         if (input.length != this.INPUT_SIZE) {
             return null;
         }
+        this.output[0] = input;
         switch (this.ACTIVATION_FUNCTION) {
             case 0:
-                this.unitStepLoops(input);
+                this.unitStepLoops();
                 break;
             case 1:
-                this.signumLoops(input);
+                this.signumLoops();
                 break;
             case 2:
-                this.sigmoidLoops(input);
+                this.sigmoidLoops();
                 break;
             case 3:
-                this.hyperbolicTangentLoops(input);
+                this.hyperbolicTangentLoops();
                 break;
             case 4:
-                this.jumpStepLoops(input);
+                this.jumpStepLoops();
                 break;
             case 5:
-                this.jumpSignumLoops(input);
+                this.jumpSignumLoops();
                 break;
             case 6:
-                this.rectifierLoops(input);
+                this.rectifierLoops();
                 break;
         }
         
@@ -148,8 +149,7 @@ public class Network {
         return this.output[this.NETWORK_SIZE - 1];
     }
 
-    private void unitStepLoops(double... input) {
-        this.output[0] = input;
+    protected void unitStepLoops() {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 
@@ -163,8 +163,7 @@ public class Network {
         }
     }
 
-    private void signumLoops(double... input) {
-        this.output[0] = input;
+    protected void signumLoops() {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 
@@ -178,8 +177,7 @@ public class Network {
         }
     }
 
-    private void sigmoidLoops(double... input) {
-        this.output[0] = input;
+    protected void sigmoidLoops() {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 
@@ -193,8 +191,7 @@ public class Network {
         }
     }
 
-    private void hyperbolicTangentLoops(double... input) {
-        this.output[0] = input;
+    protected void hyperbolicTangentLoops() {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 
@@ -208,8 +205,7 @@ public class Network {
         }
     }
 
-    private void jumpStepLoops(double... input) {
-        this.output[0] = input;
+    protected void jumpStepLoops() {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 
@@ -223,8 +219,7 @@ public class Network {
         }
     }
 
-    private void jumpSignumLoops(double... input) {
-        this.output[0] = input;
+    protected void jumpSignumLoops() {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 
@@ -238,8 +233,7 @@ public class Network {
         }
     }
 
-    private void rectifierLoops(double... input) {
-        this.output[0] = input;
+    protected void rectifierLoops() {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 

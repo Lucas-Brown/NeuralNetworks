@@ -10,29 +10,40 @@ public class Population {
 
     public GeneticNetwork[] population;
     //public final double[] target = new double[]{1, 1, 0, 0};
-    public static final double MUTATION_RATE = 0.1; //max percent change from original value
+    public static final double MUTATION_RATE = 0.1; //max percent change from original value.
     public static final boolean isHighestScoreBest = false;
     public static final String path = "C:\\Users\\Lucas Brown\\Documents\\NetworkSaves\\GeneticSaves";
     public final int ActivationFunction;
+    public final Class<?> c;
 
     public Population(int popSize, int af, double mutiplier, int... NETWORK_LAYER_SIZES) {
         this.population = new GeneticNetwork[popSize];
+        this.c = GeneticNetwork.class;
         this.ActivationFunction = af;
         for (int i = 0; i < this.population.length; i++) {
             this.population[i] = new GeneticNetwork(af, mutiplier, NETWORK_LAYER_SIZES); // automatically randomly generates new and unique networks
         }
     }
+    
+    public Population(int popSize, int af, int memoryLength, int memoryWidth, double mutiplier, int... NETWORK_LAYER_SIZES) {
+        this.population = new GeneticMemoryNetwork[popSize];
+        this.c = GeneticMemoryNetwork.class;
+        this.ActivationFunction = af;
+        for (int i = 0; i < this.population.length; i++) {
+            this.population[i] = new GeneticMemoryNetwork(af, memoryWidth, memoryWidth, mutiplier, NETWORK_LAYER_SIZES); // automatically randomly generates new and unique networks
+        }
+    }
 
     public static void main(String[] args) {
-        Population pop = new Population(75, Network.ZERO_TO_ONE, 10.0, 2, 2, 1); // initialize population
+        Population pop = new Population(75, 2, 2, Network.ZERO_TO_ONE, 10.0, 2, 2, 1); // initialize population
         
-        for (int i = 0; i < 5; i++) { // load current top 5 networks
+        /*for (int i = 0; i < 5; i++) { // load current top 5 networks
         	try {
         		pop.population[i] = GeneticNetwork.loadNetwork(path + i + ".txt");
         	} catch (Exception ex) {
         		System.err.println(ex);
         	}
-        }
+        }*/
         
         while (true) { // repeat 
             pop.Fitness(); // evaluate fitness
@@ -205,9 +216,5 @@ public class Population {
             }
         }
         return mutated;
-    }
-
-    private double binStrToDbl(String myBinStr) {
-        return new BigInteger(myBinStr, 2).doubleValue();
     }
 }
