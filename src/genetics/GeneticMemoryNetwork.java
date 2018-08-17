@@ -116,6 +116,13 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
                 for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
                     sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
+                if (neuron >= super.NETWORK_LAYER_SIZES[layer] - this.memoryWidth + 1) {
+                    if (sum < 0 || sum > this.memoryLength) { // default to no value
+                        sum = 0;
+                    }else{
+                        sum = this.memory[(int) sum][super.NETWORK_LAYER_SIZES[layer] - neuron]; // the sum is the decider of what value the memory returns
+                    }
+                }
                 this.output[layer][neuron] = this.unitStep(sum);
                 this.output_derivative[layer][neuron] = this.output[layer][neuron];
             }
@@ -129,6 +136,13 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
                 double sum = this.bias[layer][neuron];
                 for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
                     sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
+                }
+                if (neuron >= super.NETWORK_LAYER_SIZES[layer] - this.memoryWidth + 1) {
+                    if (sum < 0 || sum > this.memoryLength) { // default to no value
+                        sum = 0;
+                    }else{
+                        sum = this.memory[(int) sum][super.NETWORK_LAYER_SIZES[layer] - neuron]; // the sum is the decider of what value the memory returns
+                    }
                 }
                 this.output[layer][neuron] = this.signum(sum);
                 this.output_derivative[layer][neuron] = this.output[layer][neuron];
@@ -145,7 +159,7 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
                     sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
                 if (neuron >= super.NETWORK_LAYER_SIZES[layer] - this.memoryWidth + 1) {
-                    if (sum < 0 || sum > this.memoryLength) { // default to most recent 
+                    if (sum < 0 || sum > this.memoryLength) { // default to no value
                         sum = 0;
                     }else{
                         sum = this.memory[(int) sum][super.NETWORK_LAYER_SIZES[layer] - neuron]; // the sum is the decider of what value the memory returns
@@ -165,6 +179,13 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
                 for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
                     sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
+                if (neuron >= super.NETWORK_LAYER_SIZES[layer] - this.memoryWidth + 1) {
+                    if (sum < 0 || sum > this.memoryLength) { // default to no value
+                        sum = 0;
+                    }else{
+                        sum = this.memory[(int) sum][super.NETWORK_LAYER_SIZES[layer] - neuron]; // the sum is the decider of what value the memory returns
+                    }
+                }
                 this.output[layer][neuron] = this.hyperbolicTangent(sum);
                 this.output_derivative[layer][neuron] = 4.0 / Math.pow((Math.exp(sum) + Math.exp(-sum)), 2);
             }
@@ -178,6 +199,13 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
                 double sum = this.bias[layer][neuron];
                 for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
                     sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
+                }
+                if (neuron >= super.NETWORK_LAYER_SIZES[layer] - this.memoryWidth + 1) {
+                    if (sum < 0 || sum > this.memoryLength) { // default to no value
+                        sum = 0;
+                    }else{
+                        sum = this.memory[(int) sum][super.NETWORK_LAYER_SIZES[layer] - neuron]; // the sum is the decider of what value the memory returns
+                    }
                 }
                 this.output[layer][neuron] = this.jumpStep(sum);
                 this.output_derivative[layer][neuron] = this.output[layer][neuron];
@@ -206,6 +234,13 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
                 double sum = this.bias[layer][neuron];
                 for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
                     sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
+                }
+                if (neuron >= super.NETWORK_LAYER_SIZES[layer] - this.memoryWidth + 1) {
+                    if (sum < 0 || sum > this.memoryLength) { // default to no value
+                        sum = 0;
+                    }else{
+                        sum = this.memory[(int) sum][super.NETWORK_LAYER_SIZES[layer] - neuron]; // the sum is the decider of what value the memory returns
+                    }
                 }
                 this.output[layer][neuron] = this.rectifier(sum);
                 this.output_derivative[layer][neuron] = this.output[layer][neuron];
