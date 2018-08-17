@@ -1,10 +1,10 @@
-package fullyconnectednetwork;
+package fullyConnectedNetwork;
 
 import parser.Attribute;
 import parser.Node;
 import parser.Parser;
 import parser.ParserTools;
-import TrainSet.TrainSet;
+import trainSet.TrainSet;
 
 import java.util.Arrays;
 
@@ -23,12 +23,12 @@ public class Network {
     public final int ACTIVATION_FUNCTION;
     public final double multiplier;
 
-    private double[][] output;
-    private double[][][] weights;
-    private double[][] bias;
+    public double[][] output;
+    public double[][][] weights;
+    public double[][] bias;
 
     private double[][] error_signal;
-    private double[][] output_derivative;
+    protected double[][] output_derivative;
 
     public final int[] NETWORK_LAYER_SIZES;
     public final int INPUT_SIZE;
@@ -119,27 +119,28 @@ public class Network {
         if (input.length != this.INPUT_SIZE) {
             return null;
         }
+        this.output[0] = input;
         switch (this.ACTIVATION_FUNCTION) {
             case 0:
-                this.unitStepLoops(input);
+                this.unitStepLoops();
                 break;
             case 1:
-                this.signumLoops(input);
+                this.signumLoops();
                 break;
             case 2:
-                this.sigmoidLoops(input);
+                this.sigmoidLoops();
                 break;
             case 3:
-                this.hyperbolicTangentLoops(input);
+                this.hyperbolicTangentLoops();
                 break;
             case 4:
-                this.jumpStepLoops(input);
+                this.jumpStepLoops();
                 break;
             case 5:
-                this.jumpSignumLoops(input);
+                this.jumpSignumLoops();
                 break;
             case 6:
-                this.rectifierLoops(input);
+                this.rectifierLoops();
                 break;
         }
         
@@ -148,8 +149,7 @@ public class Network {
         return this.output[this.NETWORK_SIZE - 1];
     }
 
-    private void unitStepLoops(double... input) {
-        this.output[0] = input;
+    protected void unitStepLoops() {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 
@@ -163,8 +163,7 @@ public class Network {
         }
     }
 
-    private void signumLoops(double... input) {
-        this.output[0] = input;
+    protected void signumLoops() {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 
@@ -178,8 +177,7 @@ public class Network {
         }
     }
 
-    private void sigmoidLoops(double... input) {
-        this.output[0] = input;
+    protected void sigmoidLoops() {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 
@@ -193,8 +191,7 @@ public class Network {
         }
     }
 
-    private void hyperbolicTangentLoops(double... input) {
-        this.output[0] = input;
+    protected void hyperbolicTangentLoops() {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 
@@ -208,8 +205,7 @@ public class Network {
         }
     }
 
-    private void jumpStepLoops(double... input) {
-        this.output[0] = input;
+    protected void jumpStepLoops() {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 
@@ -223,8 +219,7 @@ public class Network {
         }
     }
 
-    private void jumpSignumLoops(double... input) {
-        this.output[0] = input;
+    protected void jumpSignumLoops() {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 
@@ -238,8 +233,7 @@ public class Network {
         }
     }
 
-    private void rectifierLoops(double... input) {
-        this.output[0] = input;
+    protected void rectifierLoops() {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 
@@ -351,15 +345,15 @@ public class Network {
         }
     }
 
-    private double sigmoid(double x) {// 0 - 1
+    protected double sigmoid(double x) {// 0 - 1
         return 1 / (1 + Math.exp(-x));
     }
 
-    public double hyperbolicTangent(double x) { // -1 - 1
+    protected double hyperbolicTangent(double x) { // -1 - 1
     	return Math.tanh(x);
     }
 
-    private double unitStep(double x) {// 1 or 0
+    protected double unitStep(double x) {// 1 or 0
         if (x > 0.5) {
             return 1;
         } else {
@@ -367,7 +361,7 @@ public class Network {
         }
     }
 
-    private double signum(double x) {//values -1 or 1
+    protected double signum(double x) {//values -1 or 1
         if (x >= 0) {
             return 1;
         } else {
@@ -375,7 +369,7 @@ public class Network {
         }
     }
 
-    private double jumpStep(double x) {
+    protected double jumpStep(double x) {
         if (x > 0.5) {
             return 1;
         } else {
@@ -383,7 +377,7 @@ public class Network {
         } 
     }
 
-    private double jumpSignum(double x) {
+    protected double jumpSignum(double x) {
         if (x > 1) {
             return 1;
         } else if (x < -1) {
@@ -393,7 +387,7 @@ public class Network {
         }
     }
 
-    private double rectifier(double x) {
+    protected double rectifier(double x) {
         return Math.log(1 + Math.exp(x));
     }
 
@@ -551,5 +545,18 @@ public class Network {
         p.close();
         return ne;
 
+    }
+    
+    public static Network copy(Network network) {
+        Network coppied = new Network(network.ACTIVATION_FUNCTION, network.multiplier, network.NETWORK_LAYER_SIZES);
+        for (int i = 0; i < network.bias.length; i++) {
+            System.arraycopy(network.bias[i], 0, coppied.bias[i], 0, network.bias[i].length);
+        }
+        for (int i = 1; i < network.weights.length; i++) {
+            for (int j = 0; j < network.weights[i].length; j++) {
+                System.arraycopy(network.weights[i][j], 0, coppied.weights[i][j], 0, network.weights[i][j].length);
+            }
+        }
+        return coppied;
     }
 }

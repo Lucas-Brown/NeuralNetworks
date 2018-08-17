@@ -1,6 +1,5 @@
-package TrainSet;
+package trainSet;
 
-import fullyconnectednetwork.NetworkTools;
 import java.io.FileNotFoundException;
 
 import java.util.ArrayList;
@@ -13,9 +12,8 @@ import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Created by Luecx on 09.08.2017.
- */
+import fullyConnectedNetwork.NetworkTools;
+
 public class TrainSet {
 
     public final int INPUT_SIZE;
