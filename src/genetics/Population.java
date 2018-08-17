@@ -10,7 +10,7 @@ public class Population {
 
     public GeneticNetwork[] population;
     //public final double[] target = new double[]{1, 1, 0, 0};
-    public static final double MUTATION_RATE = 0.001; //max percent change from original value
+    public static final double MUTATION_RATE = 0.1; //max percent change from original value
     public static final boolean isHighestScoreBest = false;
     public static final String path = "C:\\Users\\Lucas Brown\\Documents\\NetworkSaves\\GeneticSaves";
     public final int ActivationFunction;
