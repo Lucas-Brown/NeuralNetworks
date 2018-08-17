@@ -25,7 +25,7 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
     }
 
     public GeneticMemoryNetwork(int ActivationFunction, int memoryLength, int memoryWidth, double multiplier, int... NETWORK_LAYER_SIZES) {
-        this(ActivationFunction, multiplier, NETWORK_LAYER_SIZES);
+        super(ActivationFunction, multiplier, NETWORK_LAYER_SIZES);
         this.memoryLength = memoryLength;
         this.memoryWidth = memoryWidth;
         this.memory = new double[this.memoryLength][this.memoryWidth];
