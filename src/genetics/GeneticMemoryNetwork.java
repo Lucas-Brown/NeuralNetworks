@@ -13,13 +13,14 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
 
 	private double memory[][];
     private int memoryLength, memoryWidth;
+    //the length represents how long the memory bank is and the width determines the number of memory neurons within each layer
 
     public GeneticMemoryNetwork(int ActivationFunction, double multiplier, int[] NETWORK_LAYER_SIZES) {
 		super(ActivationFunction, multiplier, NETWORK_LAYER_SIZES);
 	}
 
     public GeneticMemoryNetwork(int ActivationFunction, int memoryLength, int memoryWidth, int... NETWORK_LAYER_SIZES) {
-        super(ActivationFunction, NETWORK_LAYER_SIZES);
+        super(ActivationFunction, GeneticMemoryNetwork.adjustLayers(memoryLength, memoryWidth, NETWORK_LAYER_SIZES));
         this.memoryLength = memoryLength;
         this.memoryWidth = memoryWidth;
         this.memory = new double[this.memoryLength][this.memoryWidth];
@@ -29,7 +30,7 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
     }
 
     public GeneticMemoryNetwork(int ActivationFunction, int memoryLength, int memoryWidth, double multiplier, int... NETWORK_LAYER_SIZES) {
-        super(ActivationFunction, multiplier, NETWORK_LAYER_SIZES);
+        super(ActivationFunction, multiplier, GeneticMemoryNetwork.adjustLayers(memoryLength, memoryWidth, NETWORK_LAYER_SIZES));
         this.memoryLength = memoryLength;
         this.memoryWidth = memoryWidth;
         this.memory = new double[this.memoryLength][this.memoryWidth];
@@ -99,13 +100,119 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
         
         NetworkTools.multiplyArray(this.output[this.NETWORK_SIZE - 1], this.multiplier);
         
-        double[] returned = new double[this.output.length - this.memoryWidth]; 
+        double[] returned = new double[this.OUTPUT_SIZE - this.memoryWidth]; 
         double[] memorySet = new double[this.memoryWidth];
         System.arraycopy(this.output[this.NETWORK_SIZE - 1], 0, returned, 0, returned.length);
         System.arraycopy(this.output[this.NETWORK_SIZE - 1], returned.length, memorySet, 0, memorySet.length);
         this.push(this.memory, memorySet);
         return returned;
     }
+    
+    protected void unitStepLoops() {
+        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
+            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
+
+                double sum = this.bias[layer][neuron];
+                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
+                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
+                }
+                this.output[layer][neuron] = this.unitStep(sum);
+                this.output_derivative[layer][neuron] = this.output[layer][neuron];
+            }
+        }
+    }
+
+    protected void signumLoops() {
+        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
+            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
+
+                double sum = this.bias[layer][neuron];
+                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
+                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
+                }
+                this.output[layer][neuron] = this.signum(sum);
+                this.output_derivative[layer][neuron] = this.output[layer][neuron];
+            }
+        }
+    }
+
+    protected void sigmoidLoops() {
+        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
+            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
+
+            	double sum = this.bias[layer][neuron];
+                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
+                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
+                }
+                if (neuron >= super.NETWORK_LAYER_SIZES[layer] - this.memoryWidth + 1) {
+                    if (sum < 0 || sum > this.memoryLength) { // default to most recent 
+                        sum = 0;
+                    }else{
+                        sum = this.memory[(int) sum][super.NETWORK_LAYER_SIZES[layer] - neuron]; // the sum is the decider of what value the memory returns
+                    }
+                }
+                this.output[layer][neuron] = this.sigmoid(sum);
+                this.output_derivative[layer][neuron] = Math.exp(-sum) / Math.pow((1 + Math.exp(-sum)), 2);
+            }
+        }
+    }
+
+    protected void hyperbolicTangentLoops() {
+        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
+            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
+
+                double sum = this.bias[layer][neuron];
+                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
+                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
+                }
+                this.output[layer][neuron] = this.hyperbolicTangent(sum);
+                this.output_derivative[layer][neuron] = 4.0 / Math.pow((Math.exp(sum) + Math.exp(-sum)), 2);
+            }
+        }
+    }
+
+    protected void jumpStepLoops() {
+        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
+            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
+
+                double sum = this.bias[layer][neuron];
+                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
+                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
+                }
+                this.output[layer][neuron] = this.jumpStep(sum);
+                this.output_derivative[layer][neuron] = this.output[layer][neuron];
+            }
+        }
+    }
+
+    protected void jumpSignumLoops() {
+        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
+            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
+
+                double sum = this.bias[layer][neuron];
+                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
+                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
+                }
+                this.output[layer][neuron] = this.jumpSignum(sum);
+                this.output_derivative[layer][neuron] = this.output[layer][neuron];
+            }
+        }
+    }
+
+    protected void rectifierLoops() {
+        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
+            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
+
+                double sum = this.bias[layer][neuron];
+                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
+                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
+                }
+                this.output[layer][neuron] = this.rectifier(sum);
+                this.output_derivative[layer][neuron] = this.output[layer][neuron];
+            }
+        }
+    }
+
  
 
     private void push(double[][] arr, double[] value) {
@@ -115,14 +222,14 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
         arr[0] = value;
     }
 
-    public static int[] adjustLayers(int memoryLength,int memoryWidth, int... layers) {
-        if (memoryLength < 0) {
-            return layers;
+    private static int[] adjustLayers(int memoryLength, int memoryWidth, int... networkLayers) {
+        if (memoryLength <= 0 || memoryWidth <= 0) {
+            return networkLayers;
         } else {
-            for (int layer = 1; layer < layers.length; layer++) {
-                layers[layer] += memoryWidth;
+            for (int layer = 1; layer < networkLayers.length; layer++) {
+            	networkLayers[layer] += memoryWidth;
             }
-            return layers;
+            return networkLayers;
         }
     }
     
