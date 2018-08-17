@@ -1,7 +1,6 @@
 package genetics;
 
 import java.io.File;
-import java.math.BigInteger;
 import java.util.Arrays;
 
 import fullyConnectedNetwork.Network;
