@@ -13,20 +13,26 @@ public class Population {
     public static final boolean isHighestScoreBest = false;
     public static final String path = "C:\\Users\\Lucas Brown\\Documents\\NetworkSaves\\GeneticSaves";
     public final int ActivationFunction;
-    public final Class<?> c;
 
+    //we clone the network layer sizes in each constructor so that we get different instances of the array instead of multiple instances of the same array
     public Population(int popSize, int af, double mutiplier, int... NETWORK_LAYER_SIZES) {
         this.population = new GeneticNetwork[popSize];
-        this.c = GeneticNetwork.class;
         this.ActivationFunction = af;
         for (int i = 0; i < this.population.length; i++) {
-            this.population[i] = new GeneticNetwork(af, mutiplier, NETWORK_LAYER_SIZES); // automatically randomly generates new and unique networks
+            this.population[i] = new GeneticNetwork(af, mutiplier, NETWORK_LAYER_SIZES.clone()); // automatically randomly generates new and unique networks
+        }
+    }
+    
+    public Population(int popSize, int af, int adjustingNeurons, double mutiplier, int... NETWORK_LAYER_SIZES) {
+        this.population = new SelfAdjustingNetwork[popSize];
+        this.ActivationFunction = af;
+        for (int i = 0; i < this.population.length; i++) {
+            this.population[i] = new SelfAdjustingNetwork(af, adjustingNeurons, mutiplier, NETWORK_LAYER_SIZES.clone()); // automatically randomly generates new and unique networks
         }
     }
     
     public Population(int popSize, int af, int memoryLength, int memoryWidth, double mutiplier, int... NETWORK_LAYER_SIZES) {
         this.population = new GeneticMemoryNetwork[popSize];
-        this.c = GeneticMemoryNetwork.class;
         this.ActivationFunction = af;
         for (int i = 0; i < this.population.length; i++) {
             this.population[i] = new GeneticMemoryNetwork(af, memoryLength, memoryWidth, mutiplier, NETWORK_LAYER_SIZES.clone()); // automatically randomly generates new and unique networks
@@ -34,15 +40,17 @@ public class Population {
     }
 
     public static void main(String[] args) {
-        Population pop = new Population(75, Network.ZERO_TO_ONE, 10, 3, 10.0, 2, 2, 1); // initialize population
+        Population pop = new Population(75, Network.ZERO_TO_ONE, 1, 10.0, 2, 2, 1); // initialize population
         
-        /*for (int i = 0; i < 5; i++) { // load current top 5 networks
+        /*
+        for (int i = 0; i < 5; i++) { // load current top 5 networks
         	try {
-        		pop.population[i] = GeneticNetwork.loadNetwork(path + i + ".txt");
+        		pop.population[i] = GeneticMemoryNetwork.loadNetwork(path + i + ".txt");
         	} catch (Exception ex) {
         		System.err.println(ex);
         	}
-        }*/
+        }
+        */
         
         while (true) { // repeat 
             pop.Fitness(); // evaluate fitness

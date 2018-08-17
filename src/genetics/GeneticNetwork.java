@@ -22,6 +22,7 @@ public class GeneticNetwork extends Network {
 		this.fitness = 0;
 	}
 	
+	@Override
 	public void saveNetwork(String fileName) throws Exception {
         Parser p = new Parser();
         p.create(fileName);

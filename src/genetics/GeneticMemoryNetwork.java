@@ -108,6 +108,7 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
         return returned;
     }
     
+    @Override
     protected void unitStepLoops() {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
@@ -128,7 +129,8 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
             }
         }
     }
-
+    
+    @Override
     protected void signumLoops() {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
@@ -150,6 +152,7 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
         }
     }
 
+    @Override
     protected void sigmoidLoops() {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
@@ -171,6 +174,7 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
         }
     }
 
+    @Override
     protected void hyperbolicTangentLoops() {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
@@ -192,6 +196,7 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
         }
     }
 
+    @Override
     protected void jumpStepLoops() {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
@@ -213,6 +218,7 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
         }
     }
 
+    @Override
     protected void jumpSignumLoops() {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
@@ -227,6 +233,7 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
         }
     }
 
+    @Override
     protected void rectifierLoops() {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
@@ -248,8 +255,6 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
         }
     }
 
- 
-
     private void push(double[][] arr, double[] value) {
         for (int i = arr.length - 1; i > 1; i--) {
             arr[i] = arr[i - 1];
@@ -268,6 +273,7 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
         }
     }
     
+    @Override
 	public void saveNetwork(String fileName) throws Exception {
         Parser p = new Parser();
         p.create(fileName);
