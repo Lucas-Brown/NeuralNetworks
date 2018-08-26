@@ -2,6 +2,7 @@ package genetics;
 
 import java.io.File;
 import java.util.Arrays;
+import java.lang.ClassCastException;
 
 import fullyConnectedNetwork.Network;
 
@@ -9,56 +10,72 @@ public class Population {
 
     public GeneticNetwork[] population;
     //public final double[] target = new double[]{1, 1, 0, 0};
-    public static final double MUTATION_RATE = 0.1; //max percent change from original value.
-    public static final boolean isHighestScoreBest = false;
-    public static final String path = "C:\\Users\\Lucas Brown\\Documents\\NetworkSaves\\GeneticSaves";
-    public final int ActivationFunction;
+    private final int memWidth, memLength, adjustingNeurons;
+    private final int[] NETWORK_LAYER_SIZES;
+    private static final double MUTATION_RATE = 0.1; //max percent change from original value.
+    private static final boolean isHighestScoreBest = false;
+    private static final String path = "C:\\Users\\Lucas Brown\\Documents\\NetworkSaves\\GeneticSaves";
+    private final int ActivationFunction;
+    private final Class<?> c;
 
     //we clone the network layer sizes in each constructor so that we get different instances of the array instead of multiple instances of the same array
     public Population(int popSize, int af, double mutiplier, int... NETWORK_LAYER_SIZES) {
+    	this.c = GeneticNetwork.class;
+    	this.adjustingNeurons = this.memLength = this.memWidth = 0;
         this.population = new GeneticNetwork[popSize];
         this.ActivationFunction = af;
+        this.NETWORK_LAYER_SIZES = NETWORK_LAYER_SIZES;
         for (int i = 0; i < this.population.length; i++) {
-            this.population[i] = new GeneticNetwork(af, mutiplier, NETWORK_LAYER_SIZES.clone()); // automatically randomly generates new and unique networks
+            this.population[i] = new GeneticNetwork(this.ActivationFunction, mutiplier, this.NETWORK_LAYER_SIZES.clone()); // automatically randomly generates new and unique networks
         }
     }
     
     public Population(int popSize, int af, int adjustingNeurons, double mutiplier, int... NETWORK_LAYER_SIZES) {
+    	this.c = SelfAdjustingNetwork.class;
+    	this.memLength = this.memWidth = 0;
+    	this.adjustingNeurons = adjustingNeurons;
         this.population = new SelfAdjustingNetwork[popSize];
         this.ActivationFunction = af;
+        this.NETWORK_LAYER_SIZES = NETWORK_LAYER_SIZES;
         for (int i = 0; i < this.population.length; i++) {
-            this.population[i] = new SelfAdjustingNetwork(af, adjustingNeurons, mutiplier, NETWORK_LAYER_SIZES.clone()); // automatically randomly generates new and unique networks
+            this.population[i] = new SelfAdjustingNetwork(this.ActivationFunction, this.adjustingNeurons, mutiplier, this.NETWORK_LAYER_SIZES.clone()); // automatically randomly generates new and unique networks
         }
     }
     
     public Population(int popSize, int af, int memoryLength, int memoryWidth, double mutiplier, int... NETWORK_LAYER_SIZES) {
+    	this.c = GeneticMemoryNetwork.class;
+    	this.memWidth = memoryWidth;
+    	this.memLength = memoryLength;
+    	this.adjustingNeurons = 0;
         this.population = new GeneticMemoryNetwork[popSize];
         this.ActivationFunction = af;
+        this.NETWORK_LAYER_SIZES = NETWORK_LAYER_SIZES;
         for (int i = 0; i < this.population.length; i++) {
-            this.population[i] = new GeneticMemoryNetwork(af, memoryLength, memoryWidth, mutiplier, NETWORK_LAYER_SIZES.clone()); // automatically randomly generates new and unique networks
+            this.population[i] = new GeneticMemoryNetwork(this.ActivationFunction, this.memLength, this.memWidth, mutiplier, this.NETWORK_LAYER_SIZES.clone()); // automatically randomly generates new and unique networks
         }
     }
 
     public static void main(String[] args) {
-        Population pop = new Population(75, Network.ZERO_TO_ONE, 1, 10.0, 2, 2, 1); // initialize population
+        Population pop = new Population(75, Network.ZERO_TO_ONE, 10, 2, 10.0, 2, 2, 1); // initialize population
         
-        /*
         for (int i = 0; i < 5; i++) { // load current top 5 networks
         	try {
         		pop.population[i] = GeneticMemoryNetwork.loadNetwork(path + i + ".txt");
         	} catch (Exception ex) {
-        		System.err.println(ex);
+        		System.err.println(Arrays.toString(ex.getStackTrace()));
         	}
         }
-        */
         
-        while (true) { // repeat 
+        int i = 0;
+        while (i < 50) { // repeat 
             pop.Fitness(); // evaluate fitness
             //pop.FitnessBase(); // compare to base
             System.out.println("Fitness complete");
             pop.nextGeneration(); // replace old generation with new one
             System.out.println("generation killed");
+            i++;
         }
+        
     }
 
     public void Fitness() {
@@ -100,11 +117,12 @@ public class Population {
         System.out.println(score);
     }
 */
+
     public GeneticNetwork[] highestFitnessNetworks(int topX) {
     	GeneticNetwork[] top = new GeneticNetwork[topX];
         if (Population.isHighestScoreBest) {
             for (int i = 0; i < top.length; i++) {
-                top[i] = new GeneticNetwork(this.ActivationFunction, this.population[0].NETWORK_LAYER_SIZES);
+                top[i] = new GeneticNetwork(this.ActivationFunction, this.NETWORK_LAYER_SIZES.clone());
                 top[i].fitness = 0.0;
             }
             for (GeneticNetwork thePopulation : this.population) {
@@ -124,7 +142,7 @@ public class Population {
             }
         } else {
             for (int i = 0; i < top.length; i++) {
-                top[i] = new GeneticNetwork(this.ActivationFunction, this.population[0].NETWORK_LAYER_SIZES);
+                top[i] = new GeneticNetwork(this.ActivationFunction, this.NETWORK_LAYER_SIZES.clone());
                 top[i].fitness = Double.MAX_VALUE;
             }
             for (GeneticNetwork thePopulation : this.population) {
@@ -143,12 +161,8 @@ public class Population {
             }
         }
         for (int i = 0; i < top.length; i++) {
-            try {
-                top[i].saveNetwork(path + i + ".txt");
-                System.out.println(top[i].fitness);
-            } catch (Exception ex) {
-                System.err.println("failed to save: " + ex);
-            }
+        	top[i].saveNetwork(path + i + ".txt");
+            System.out.println(top[i].fitness);
         }
         return top;
     }
@@ -164,7 +178,13 @@ public class Population {
             }
         }
         for (int i = nextGeneration.length - 5; i < nextGeneration.length; i++) { // adds some diversity every time
-            nextGeneration[i] = new GeneticNetwork(this.ActivationFunction, nextGeneration[i - 1].NETWORK_LAYER_SIZES);
+        	if(this.c.equals(GeneticNetwork.class)) {
+                nextGeneration[i] = new GeneticNetwork(this.ActivationFunction, this.population[0].multiplier, this.NETWORK_LAYER_SIZES.clone()); 
+        	}else if(this.c.equals(GeneticMemoryNetwork.class)) {
+                nextGeneration[i] = new GeneticMemoryNetwork(this.ActivationFunction, this.memLength, this.memWidth, this.population[0].multiplier, this.NETWORK_LAYER_SIZES.clone());
+        	}else if(this.c.equals(SelfAdjustingNetwork.class)) {
+                nextGeneration[i] = new SelfAdjustingNetwork(this.ActivationFunction, this.adjustingNeurons, this.population[0].multiplier, this.NETWORK_LAYER_SIZES.clone()); 
+        	}
         }
         this.population = nextGeneration;
     }
@@ -173,8 +193,16 @@ public class Population {
         if (!Arrays.equals(parentA.NETWORK_LAYER_SIZES, parentB.NETWORK_LAYER_SIZES)) {
             return null;
         }
-
-        GeneticNetwork child = new GeneticNetwork(this.ActivationFunction, parentA.multiplier, parentA.NETWORK_LAYER_SIZES);
+        GeneticNetwork child;
+    	if(this.c.equals(GeneticNetwork.class)) {
+    		child = new GeneticNetwork(this.ActivationFunction, this.population[0].multiplier, this.NETWORK_LAYER_SIZES.clone()); 
+    	}else if(this.c.equals(GeneticMemoryNetwork.class)) {
+    		child = new GeneticMemoryNetwork(this.ActivationFunction, this.memLength, this.memWidth, this.population[0].multiplier, this.NETWORK_LAYER_SIZES.clone());
+    	}else if(this.c.equals(SelfAdjustingNetwork.class)) {
+    		child = new SelfAdjustingNetwork(this.ActivationFunction, this.adjustingNeurons, this.population[0].multiplier, this.NETWORK_LAYER_SIZES.clone()); 
+    	}else {
+    		child = null;
+    	}
 
         double percentWeight = (parentA.fitness * 0.5) / parentB.fitness; // weigh the randomizer towards the better parent
         

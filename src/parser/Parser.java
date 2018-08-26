@@ -6,8 +6,6 @@ import java.io.PrintWriter;
 
 public class Parser {
 	
-
-	
 	private Node mainContent;
 	private String fileName;
 	

@@ -23,7 +23,7 @@ public class GeneticNetwork extends Network {
 	}
 	
 	@Override
-	public void saveNetwork(String fileName) throws Exception {
+	public void saveNetwork(String fileName) {
         Parser p = new Parser();
         p.create(fileName);
         Node root = p.getContent();
@@ -51,7 +51,11 @@ public class GeneticNetwork extends Network {
                 w.addAttribute("" + we, Arrays.toString(this.weights[layer][we]));
             }
         }
-        p.close();
+        try {
+			p.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
 
     public static GeneticNetwork loadNetwork(String fileName) throws Exception {

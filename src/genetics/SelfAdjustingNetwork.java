@@ -3,12 +3,16 @@ package genetics;
 import java.util.Arrays;
 
 import fullyConnectedNetwork.NetworkTools;
+import parser.Attribute;
+import parser.Node;
+import parser.Parser;
+import parser.ParserTools;
 import trainSet.TrainSet;
 
 public class SelfAdjustingNetwork extends GeneticNetwork{ // uses the output of a few neurons as the bias and additional multiplier of extra hidden layer neurons
 
-	int adjustingNeurons, finalLayerAdjustingNeurons;
-	double[][] neuronMultiplier; 
+	private int adjustingNeurons, finalLayerAdjustingNeurons;
+	private double[][] neuronMultiplier; 
 	
 	public SelfAdjustingNetwork(int ActivationFunction, int adjustingNeurons, double multiplier, int[] NETWORK_LAYER_SIZES) {
 		super(ActivationFunction, multiplier, SelfAdjustingNetwork.adjustLayers(adjustingNeurons, NETWORK_LAYER_SIZES));
@@ -95,8 +99,16 @@ public class SelfAdjustingNetwork extends GeneticNetwork{ // uses the output of 
                 for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
                     sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
-                this.output[layer][neuron] = this.unitStep(sum);
-                this.output_derivative[layer][neuron] = this.output[layer][neuron];
+                if(neuron >= this.NETWORK_LAYER_SIZES[layer] - this.adjustingNeurons) {
+                	sum *= this.neuronMultiplier[layer - 1][neuron - (this.NETWORK_LAYER_SIZES[layer] - this.adjustingNeurons)];
+                }
+                if(layer == this.OUTPUT_SIZE - 1 && neuron >= this.NETWORK_LAYER_SIZES[layer] - this.finalLayerAdjustingNeurons) {
+                	this.output[layer][neuron] = sum; // the final layer should not be subject to any activation function
+                    this.output_derivative[layer][neuron] = 1;
+                }else {
+                	this.output[layer][neuron] = this.unitStep(sum);
+                	this.output_derivative[layer][neuron] = this.output[layer][neuron];
+                }
             }
         }
     }
@@ -110,8 +122,16 @@ public class SelfAdjustingNetwork extends GeneticNetwork{ // uses the output of 
                 for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
                     sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
-                this.output[layer][neuron] = this.signum(sum);
-                this.output_derivative[layer][neuron] = this.output[layer][neuron];
+                if(neuron >= this.NETWORK_LAYER_SIZES[layer] - this.adjustingNeurons) {
+                	sum *= this.neuronMultiplier[layer - 1][neuron - (this.NETWORK_LAYER_SIZES[layer] - this.adjustingNeurons)];
+                }
+                if(layer == this.OUTPUT_SIZE - 1 && neuron >= this.NETWORK_LAYER_SIZES[layer] - this.finalLayerAdjustingNeurons) {
+                	this.output[layer][neuron] = sum; // the final layer should not be subject to any activation function
+                    this.output_derivative[layer][neuron] = 1;
+                }else {
+                	this.output[layer][neuron] = this.signum(sum);
+                	this.output_derivative[layer][neuron] = this.output[layer][neuron];
+                }
             }
         }
     }
@@ -147,8 +167,16 @@ public class SelfAdjustingNetwork extends GeneticNetwork{ // uses the output of 
                 for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
                     sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
-                this.output[layer][neuron] = this.hyperbolicTangent(sum);
-                this.output_derivative[layer][neuron] = 4.0 / Math.pow((Math.exp(sum) + Math.exp(-sum)), 2);
+                if(neuron >= this.NETWORK_LAYER_SIZES[layer] - this.adjustingNeurons) {
+                	sum *= this.neuronMultiplier[layer - 1][neuron - (this.NETWORK_LAYER_SIZES[layer] - this.adjustingNeurons)];
+                }
+                if(layer == this.OUTPUT_SIZE - 1 && neuron >= this.NETWORK_LAYER_SIZES[layer] - this.finalLayerAdjustingNeurons) {
+                	this.output[layer][neuron] = sum; // the final layer should not be subject to any activation function
+                    this.output_derivative[layer][neuron] = 1;
+                }else {
+                	this.output[layer][neuron] = this.hyperbolicTangent(sum);
+                	this.output_derivative[layer][neuron] = 4.0 / Math.pow((Math.exp(sum) + Math.exp(-sum)), 2);
+                }
             }
         }
     }
@@ -162,8 +190,16 @@ public class SelfAdjustingNetwork extends GeneticNetwork{ // uses the output of 
                 for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
                     sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
-                this.output[layer][neuron] = this.jumpStep(sum);
-                this.output_derivative[layer][neuron] = this.output[layer][neuron];
+                if(neuron >= this.NETWORK_LAYER_SIZES[layer] - this.adjustingNeurons) {
+                	sum *= this.neuronMultiplier[layer - 1][neuron - (this.NETWORK_LAYER_SIZES[layer] - this.adjustingNeurons)];
+                }
+                if(layer == this.OUTPUT_SIZE - 1 && neuron >= this.NETWORK_LAYER_SIZES[layer] - this.finalLayerAdjustingNeurons) {
+                	this.output[layer][neuron] = sum; // the final layer should not be subject to any activation function
+                    this.output_derivative[layer][neuron] = 1;
+                }else {
+                	this.output[layer][neuron] = this.jumpStep(sum);
+                	this.output_derivative[layer][neuron] = this.output[layer][neuron];
+                }
             }
         }
     }
@@ -177,8 +213,16 @@ public class SelfAdjustingNetwork extends GeneticNetwork{ // uses the output of 
                 for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
                     sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
-                this.output[layer][neuron] = this.jumpSignum(sum);
-                this.output_derivative[layer][neuron] = this.output[layer][neuron];
+                if(neuron >= this.NETWORK_LAYER_SIZES[layer] - this.adjustingNeurons) {
+                	sum *= this.neuronMultiplier[layer - 1][neuron - (this.NETWORK_LAYER_SIZES[layer] - this.adjustingNeurons)];
+                }
+                if(layer == this.OUTPUT_SIZE - 1 && neuron >= this.NETWORK_LAYER_SIZES[layer] - this.finalLayerAdjustingNeurons) {
+                	this.output[layer][neuron] = sum; // the final layer should not be subject to any activation function
+                    this.output_derivative[layer][neuron] = 1;
+                }else {
+                	this.output[layer][neuron] = this.jumpSignum(sum);
+                	this.output_derivative[layer][neuron] = this.output[layer][neuron];
+                }
             }
         }
     }
@@ -191,13 +235,20 @@ public class SelfAdjustingNetwork extends GeneticNetwork{ // uses the output of 
                 for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
                     sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
-                this.output[layer][neuron] = this.rectifier(sum);
-                this.output_derivative[layer][neuron] = this.output[layer][neuron];
+                if(neuron >= this.NETWORK_LAYER_SIZES[layer] - this.adjustingNeurons) {
+                	sum *= this.neuronMultiplier[layer - 1][neuron - (this.NETWORK_LAYER_SIZES[layer] - this.adjustingNeurons)];
+                }
+                if(layer == this.OUTPUT_SIZE - 1 && neuron >= this.NETWORK_LAYER_SIZES[layer] - this.finalLayerAdjustingNeurons) {
+                	this.output[layer][neuron] = sum; // the final layer should not be subject to any activation function
+                    this.output_derivative[layer][neuron] = 1;
+                }else {
+                	this.output[layer][neuron] = this.rectifier(sum);
+                	this.output_derivative[layer][neuron] = this.output[layer][neuron];
+                }
             }
         }
     }
 
-    
     private static int[] adjustLayers(int adjuster, int... networkLayers) {
         if (adjuster <= 0) {
             return networkLayers;
@@ -211,5 +262,89 @@ public class SelfAdjustingNetwork extends GeneticNetwork{ // uses the output of 
             }
             return networkLayers;
         }
+    }
+    
+    static int[] reverseAdjustLayers(int adjuster, int... networkLayers) {
+        if (adjuster <= 0) {
+            return networkLayers;
+        } else {
+            for (int layer = 1; layer < networkLayers.length; layer++) {
+            	if(layer == networkLayers.length - 1) { //last layer
+            		networkLayers[layer] -= 2 * adjuster * (networkLayers.length - 2); // an output neuron for every bias and weight for each additional neuron added to the hidden layers
+            	}else {
+            		networkLayers[layer] -= adjuster;
+            	}
+            }
+            return networkLayers;
+        }
+    }
+
+    @Override
+	public void saveNetwork(String fileName) {
+        Parser p = new Parser();
+        p.create(fileName);
+        Node root = p.getContent();
+        Node netw = new Node("Network");
+        Node ly = new Node("Layers");
+        netw.addAttribute(new Attribute("Activation Function", Integer.toString(this.ACTIVATION_FUNCTION)));
+        netw.addAttribute(new Attribute("Adjustment", Integer.toString(this.adjustingNeurons)));
+        netw.addAttribute(new Attribute("Multiplier", Double.toString(this.multiplier)));
+        netw.addAttribute(new Attribute("fitness", Double.toString(this.fitness)));
+        netw.addAttribute(new Attribute("sizes", Arrays.toString(this.NETWORK_LAYER_SIZES)));
+        netw.addChild(ly);
+        root.addChild(netw);
+        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
+
+            Node c = new Node("" + layer);
+            ly.addChild(c);
+            Node w = new Node("weights");
+            Node b = new Node("biases");
+            c.addChild(w);
+            c.addChild(b);
+
+            b.addAttribute("values", Arrays.toString(this.bias[layer]));
+
+            for (int we = 0; we < this.weights[layer].length; we++) {
+
+                w.addAttribute("" + we, Arrays.toString(this.weights[layer][we]));
+            }
+        }
+        try {
+			p.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    }
+
+    public static GeneticNetwork loadNetwork(String fileName) throws Exception {
+
+        Parser p = new Parser();
+
+        p.load(fileName);
+        int af = Integer.parseInt(p.getValue(new String[]{"Network"}, "Activation Function"));
+        int ad = Integer.parseInt(p.getValue(new String[]{"Network"}, "Adjustment"));
+        double Multiplyer = Double.parseDouble(p.getValue(new String[]{"Network"}, "Multiplier"));
+        double Fitness = Double.parseDouble(p.getValue(new String[]{"Network"}, "fitness"));
+        String sizes = p.getValue(new String[]{"Network"}, "sizes");
+        int[] si = ParserTools.parseIntArray(sizes);
+        SelfAdjustingNetwork ne = new SelfAdjustingNetwork(af, ad, Multiplyer, reverseAdjustLayers(ad, si));
+        ne.fitness = Fitness;
+        
+        for (int i = 1; i < ne.NETWORK_SIZE; i++) {
+            String biases = p.getValue(new String[]{"Network", "Layers", new String(i + ""), "biases"}, "values");
+            double[] bias = ParserTools.parseDoubleArray(biases);
+            ne.bias[i] = bias;
+
+            for (int n = 0; n < ne.NETWORK_LAYER_SIZES[i]; n++) {
+
+                String current = p.getValue(new String[]{"Network", "Layers", new String(i + ""), "weights"}, "" + n);
+                double[] val = ParserTools.parseDoubleArray(current);
+
+                ne.weights[i][n] = val;
+            }
+        }
+        p.close();
+        return ne;
+
     }
 }

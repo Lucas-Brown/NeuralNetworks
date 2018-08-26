@@ -273,8 +273,19 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
         }
     }
     
+    static int[] reverseAdjustLayers(int memoryLength, int memoryWidth, int... networkLayers) {
+        if (memoryLength <= 0 || memoryWidth <= 0) {
+            return networkLayers;
+        } else {
+            for (int layer = 1; layer < networkLayers.length; layer++) {
+            	networkLayers[layer] -= memoryWidth;
+            }
+            return networkLayers;
+        }
+    }
+
     @Override
-	public void saveNetwork(String fileName) throws Exception {
+	public void saveNetwork(String fileName) {
         Parser p = new Parser();
         p.create(fileName);
         Node root = p.getContent();
@@ -283,8 +294,8 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
         netw.addAttribute(new Attribute("Activation Function", Integer.toString(this.ACTIVATION_FUNCTION)));
         netw.addAttribute(new Attribute("Multiplier", Double.toString(this.multiplier)));
         netw.addAttribute(new Attribute("fitness", Double.toString(this.fitness)));
-        netw.addAttribute(new Attribute("length", Double.toString(this.memoryLength)));
-        netw.addAttribute(new Attribute("width", Double.toString(this.memoryWidth)));
+        netw.addAttribute(new Attribute("length", Integer.toString(this.memoryLength)));
+        netw.addAttribute(new Attribute("width", Integer.toString(this.memoryWidth)));
         netw.addAttribute(new Attribute("sizes", Arrays.toString(this.NETWORK_LAYER_SIZES)));
         netw.addChild(ly);
         root.addChild(netw);
@@ -304,7 +315,11 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
                 w.addAttribute("" + we, Arrays.toString(this.weights[layer][we]));
             }
         }
-        p.close();
+        try {
+			p.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
 
     public static GeneticNetwork loadNetwork(String fileName) throws Exception {
@@ -319,7 +334,7 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
         int width = Integer.parseInt(p.getValue(new String[] {"Network"}, "width"));
         String sizes = p.getValue(new String[]{"Network"}, "sizes");
         int[] si = ParserTools.parseIntArray(sizes);
-        GeneticMemoryNetwork ne = new GeneticMemoryNetwork(af, length, width, Multiplyer, si);
+        GeneticMemoryNetwork ne = new GeneticMemoryNetwork(af, length, width, Multiplyer, GeneticMemoryNetwork.reverseAdjustLayers(length, width, si));
         ne.fitness = Fitness;
         
         for (int i = 1; i < ne.NETWORK_SIZE; i++) {
