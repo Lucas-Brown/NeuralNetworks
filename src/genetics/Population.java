@@ -12,7 +12,7 @@ public class Population {
     private final int[] NETWORK_LAYER_SIZES;
     private static final double MUTATION_RATE = 0.1; //max percent change from original value.
     private static final boolean isHighestScoreBest = false;
-    private static final String path = "C:\\Users\\Lucas Brown\\Documents\\NetworkSaves\\GeneticSaves";
+    private static final String path = "C:\\Users\\Home-Lucas\\Documents\\Saves\\NeuralNetworks\\GeneticNetworks";
     private final int ActivationFunction;
     private final Class<?> c;
 
@@ -54,18 +54,19 @@ public class Population {
     }
 
     public static void main(String[] args) {
-        Population pop = new Population(75, Network.ZERO_TO_ONE, 10, 2, 10.0, 2, 2, 1); // initialize population
+        Population pop = new Population(75, Network.ZERO_TO_ONE, 2, 10.0, 2, 2, 1); // initialize population
         
+        /*
         for (int i = 0; i < 5; i++) { // load current top 5 networks
         	try {
         		pop.population[i] = GeneticMemoryNetwork.loadNetwork(path + i + ".txt");
         	} catch (Exception ex) {
         		System.err.println(Arrays.toString(ex.getStackTrace()));
         	}
-        }
+        }*/
         
         int i = 0;
-        while (i < 50) { // repeat 
+        while (i < 100) { // repeat 
             pop.Fitness(); // evaluate fitness
             //pop.FitnessBase(); // compare to base
             System.out.println("Fitness complete");
@@ -230,6 +231,10 @@ public class Population {
                 	child.weights[i][j][l] = parentVal;
                 }
             }
+        }
+        
+        if(this.c.equals(SelfAdjustingNetwork.class)) {
+        	child.breed( (SelfAdjustingNetwork) parentA, (SelfAdjustingNetwork) parentB, Population.MUTATION_RATE);
         }
 
         return child;

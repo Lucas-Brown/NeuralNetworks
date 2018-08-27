@@ -248,7 +248,25 @@ public class SelfAdjustingNetwork extends GeneticNetwork{ // uses the output of 
             }
         }
     }
+    
+    @Override
+	public void breed (SelfAdjustingNetwork parentA, SelfAdjustingNetwork parentB, double MUTATION_RATE) {
+        double percentWeight = (parentA.fitness * 0.5) / parentB.fitness; // weigh the randomizer towards the better parent
 
+        for (int i = 0; i < this.neuronMultiplier.length; i++) {
+            for (int j = 1; j < this.neuronMultiplier[i].length; j++) {
+            	double parentVal = 0;
+            	if(Math.random() < percentWeight) {
+            		parentVal = parentA.neuronMultiplier[i][j];
+            	} else {
+            		parentVal = parentB.neuronMultiplier[i][j];
+        		}
+            	parentVal += (Math.random() * 2.0 - 1) * MUTATION_RATE;
+            	this.neuronMultiplier[i][j] = parentVal;
+            }
+        }
+	}
+    
     private static int[] adjustLayers(int adjuster, int... networkLayers) {
         if (adjuster <= 0) {
             return networkLayers;

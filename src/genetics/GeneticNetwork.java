@@ -22,6 +22,10 @@ public class GeneticNetwork extends Network {
 		this.fitness = 0;
 	}
 	
+	public void breed (SelfAdjustingNetwork parentA, SelfAdjustingNetwork parentB, double MUTATION_RATE) {
+		System.err.println("breed is not meant for this class");
+	}
+	
 	@Override
 	public void saveNetwork(String fileName) {
         Parser p = new Parser();
