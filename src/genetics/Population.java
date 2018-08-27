@@ -1,8 +1,6 @@
 package genetics;
 
-import java.io.File;
 import java.util.Arrays;
-import java.lang.ClassCastException;
 
 import fullyConnectedNetwork.Network;
 

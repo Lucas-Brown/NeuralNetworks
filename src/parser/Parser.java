@@ -20,6 +20,7 @@ public class Parser {
 		}
 		data += "</MainContent>";
 		this.generateNodes(data);
+		reader.close();
 	}
 	
 	public void create(String fileName) {

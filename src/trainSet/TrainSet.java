@@ -6,18 +6,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import fullyConnectedNetwork.NetworkTools;
+import parser.Attribute;
+import parser.Node;
+import parser.Parser;
+import parser.ParserTools;
 
 public class TrainSet {
 
-    public final int INPUT_SIZE;
-    public final int OUTPUT_SIZE;
+    public final int INPUT_SIZE, OUTPUT_SIZE;
 
     //double[][] <- index1: 0 = input, 1 = output || index2: index of element
     private ArrayList<double[][]> data = new ArrayList<>();
@@ -27,43 +25,63 @@ public class TrainSet {
         this.OUTPUT_SIZE = OUTPUT_SIZE;
     }
     
-    public TrainSet(String path) throws FileNotFoundException {
-        Scanner sc = new Scanner(new File(path));
-    	sc.useDelimiter("\\]*,\\s*\\[*");
-    	this.INPUT_SIZE = sc.nextInt();
-    	this.OUTPUT_SIZE = sc.nextInt();
-        while(sc.hasNext()) {
-    	double[] in = new double[this.INPUT_SIZE];
-    	double[] out = new double[this.OUTPUT_SIZE];
-    	for(int i = 0; i < this.INPUT_SIZE; i++) {
-    		in[i] = sc.nextDouble();
-    	}
-    	for(int i = 0; i < this.OUTPUT_SIZE; i++) {
-    		out[i] = sc.nextDouble();
-    	}
-    	this.data.add(new double[][]{in, out});
-        }
-        }
+    public TrainSet(String path) throws Exception{
+    	TrainSet loadedSet = TrainSet.loadTrainSet(path);
+    	this.INPUT_SIZE = loadedSet.INPUT_SIZE;
+    	this.OUTPUT_SIZE  = loadedSet.OUTPUT_SIZE;
+    	this.data = loadedSet.data;
+    }
     
+    public static TrainSet loadTrainSet(String fileName) throws Exception {
+        Parser p = new Parser();
+        p.load(fileName);
+
+        int in = Integer.parseInt(p.getValue(new String[]{"TrainSet"}, "Input Size"));
+        int out = Integer.parseInt(p.getValue(new String[]{"TrainSet"}, "Output Size"));
+        int size = Integer.parseInt(p.getValue(new String[]{"TrainSet"}, "Size"));
+        TrainSet set = new TrainSet(in, out);
+        
+
+        for(int dataSet = 0; dataSet < size; dataSet++) {
+        	double[] input = ParserTools.parseDoubleArray(p.getValue(new String[]{"TrainSet", "Data", "" + dataSet, "in"}, "input"));
+        	double[] output = ParserTools.parseDoubleArray(p.getValue(new String[]{"TrainSet", "Data", "" + dataSet, "out"}, "output"));
+        	set.addData(input, output);
+        }
+        
+        p.close();
+        return set;
+    }
     
-    public void saveTrainSet(String path){
-        try (PrintWriter pw = new PrintWriter(new FileWriter(path))) {
-            pw.println(this.INPUT_SIZE + ", " + this.OUTPUT_SIZE + ",");
-            int j = 0;
-            for(int g = 0; g < this.data.size(); g++){
-            for(double[] i: this.data.get(g)){
-                if(j%2==0){
-                    pw.print(Arrays.toString(i) + ", ");
-                }else{
-                    pw.println(Arrays.toString(i) + ",");
-                }
-                j++;
-            }
-            }
+    public void saveTrainSet(String fileName){
+        Parser p = new Parser();
+        p.create(fileName);
+        Node root = p.getContent();
+        Node set = new Node("TrainSet");
+        Node data = new Node("Data");
+        set.addAttribute(new Attribute("Input Size", Integer.toString(this.INPUT_SIZE)));
+        set.addAttribute(new Attribute("Output Size", Integer.toString(this.OUTPUT_SIZE)));
+        set.addAttribute(new Attribute("Size", Integer.toString(this.data.size())));
+        set.addChild(data);
+        root.addChild(set);
+        
+        for(int dataSet = 0; dataSet < this.data.size(); dataSet++) {
+            Node num = new Node("" + dataSet);
+            data.addChild(num);
+
+            Node i = new Node("in");
+            Node o = new Node("out");
+            num.addChild(i);
+            num.addChild(o);
             
-        } catch (IOException ex) {
-            Logger.getLogger(TrainSet.class.getName()).log(Level.SEVERE, null, ex);
+            i.addAttribute(new Attribute("input", Arrays.toString(this.data.get(dataSet)[0])));
+            o.addAttribute(new Attribute("output", Arrays.toString(this.data.get(dataSet)[1])));
         }
+
+        try {
+			p.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
     
     public void addData(double[] in, double[] expected) {

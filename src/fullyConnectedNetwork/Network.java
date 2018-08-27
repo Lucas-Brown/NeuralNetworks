@@ -392,26 +392,17 @@ public class Network {
     }
 
     public static void main(String[] args) {
-        NN network = new NN(Network.ZERO_TO_ONE, 180.0, 2, 3, 1);
-
-        try {
-        	//network.net = Network.loadNetwork("C:\\Users\\Lucas Brown\\Documents\\NetworkSaves\\NetSaves\\PerfectExampleDataNetworkSave.txt");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-        
-        Network.addPerfectExampleData(network);
-
-        network.train(5000);
-        for (int i = 0; i < network.set.size(); i++) {
-            System.out.println(Arrays.toString(network.set.getInput(i)) + " >--< " + Arrays.toString(network.calculate(network.set.getInput(i))) + 
-                    ", should be: " + Arrays.toString(network.set.getOutput(i)));
-        }
-        try {
-			network.saveNet("C:\\Users\\Lucas Brown\\Documents\\NetworkSaves\\NetSaves\\PerfectExampleDataNetworkSave.txt");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+    	NN nn = new NN(Network.ZERO_TO_ONE, 90.0, 2, 2, 1);
+    	
+    	
+    	try {
+    		nn.set = TrainSet.loadTrainSet("C:\\Users\\Home-Lucas\\Documents\\Saves\\TrainSets\\Test.txt");
+    	}catch (Exception e) {
+    		e.printStackTrace();
+    		Network.addExampleData(nn);
+    	}
+    	System.out.println(Arrays.toString(nn.set.getInput(0)));
+    	//nn.set.saveTrainSet("C:\\Users\\Home-Lucas\\Documents\\Saves\\TrainSets\\Test.txt");
     }
 
     private static void addPerfectExampleData(NN network) {
