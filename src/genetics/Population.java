@@ -10,6 +10,8 @@ public class Population {
     //public final double[] target = new double[]{1, 1, 0, 0};
     private final int memWidth, memLength, adjustingNeurons;
     private final int[] NETWORK_LAYER_SIZES;
+    private static final int TOP_NETWORKS_NUM = 5;
+    private static final int DIVERSITY_RATING = 1; // how many new networks get added each generation
     private static final double MUTATION_RATE = 0.1; //max percent change from original value.
     private static final boolean isHighestScoreBest = false;
     private static final String path = "C:\\Users\\Home-Lucas\\Documents\\Saves\\NeuralNetworks\\GeneticNetworks";
@@ -54,7 +56,7 @@ public class Population {
     }
 
     public static void main(String[] args) {
-        Population pop = new Population(75, Network.ZERO_TO_ONE, 2, 10.0, 2, 2, 1); // initialize population
+        Population pop = new Population(72, Network.ZERO_TO_ONE, 2, 10.0, 2, 2, 1); // initialize population
         
         /*
         for (int i = 0; i < 5; i++) { // load current top 5 networks
@@ -66,7 +68,7 @@ public class Population {
         }*/
         
         int i = 0;
-        while (i < 100) { // repeat 
+        while (i < 1000) { // repeat 
             pop.Fitness(); // evaluate fitness
             //pop.FitnessBase(); // compare to base
             System.out.println("Fitness complete");
@@ -85,37 +87,6 @@ public class Population {
     		}
     	}
     }
-/*
-    public void FitnessBase() {
-        double score = 0;
-        //lowest score
-        Network net;
-        for (double ex = 0; ex <= 5; ex += 1) {
-            for (int testSize = 1; testSize < 76; testSize += 5) {
-                double[] inData = new double[4];
-                double[] outData = new double[1];
-                for (int data = 0; data < testSize; data++) { // add some data
-                    for (int i = 0; i < inData.length; i++) {
-                        inData[i] = (i + 1) * 100;
-                    }
-                    for (int i = 0; i < outData.length; i++) {
-                        outData[i] = 1d / (i + 1);
-                    }
-                }
-                double mse;
-                do {
-                    net = new Network(Network.ZERO_TO_ONE, new int[]{4, 4, 1});
-                    mse = net.MSE(inData, outData);
-                    for (int i = 0; i < Math.pow(10, ex); i++) {
-                        net.train(inData, outData, Network.LEARNING_RATE);
-                    }
-                } while (Double.isNaN(net.MSE(inData, outData)));
-                //score +=  ?  ?  ?;
-            }
-        }
-        System.out.println(score);
-    }
-*/
 
     public GeneticNetwork[] highestFitnessNetworks(int topX) {
     	GeneticNetwork[] top = new GeneticNetwork[topX];
@@ -167,24 +138,33 @@ public class Population {
     }
 
     public void nextGeneration() {
-    	GeneticNetwork[] bestNetworks = this.highestFitnessNetworks(5);
+    	GeneticNetwork[] bestNetworks = this.highestFitnessNetworks(Population.TOP_NETWORKS_NUM);
+    	GeneticNetwork[] parents = new GeneticNetwork[bestNetworks.length + Population.DIVERSITY_RATING];
+    	
         GeneticNetwork[] nextGeneration = new GeneticNetwork[this.population.length];
         System.arraycopy(bestNetworks, 0, nextGeneration, 0, bestNetworks.length);
-
-        for (int i = bestNetworks.length; i < nextGeneration.length - 5; i++) { // fill next generation with children
-            for (GeneticNetwork bestNetwork : bestNetworks) {
-                nextGeneration[i] = this.breed(bestNetworks[i % bestNetworks.length], bestNetwork);
-            }
-        }
-        for (int i = nextGeneration.length - 5; i < nextGeneration.length; i++) { // adds some diversity every time
+        System.arraycopy(bestNetworks, 0, parents, 0, bestNetworks.length);
+    	
+    	for(int i = bestNetworks.length; i < parents.length; i++) {
         	if(this.c.equals(GeneticNetwork.class)) {
-                nextGeneration[i] = new GeneticNetwork(this.ActivationFunction, this.population[0].multiplier, this.NETWORK_LAYER_SIZES.clone()); 
+        		parents[i] = new GeneticNetwork(this.ActivationFunction, this.population[0].multiplier, this.NETWORK_LAYER_SIZES.clone()); 
         	}else if(this.c.equals(GeneticMemoryNetwork.class)) {
-                nextGeneration[i] = new GeneticMemoryNetwork(this.ActivationFunction, this.memLength, this.memWidth, this.population[0].multiplier, this.NETWORK_LAYER_SIZES.clone());
+        		parents[i] = new GeneticMemoryNetwork(this.ActivationFunction, this.memLength, this.memWidth, this.population[0].multiplier, this.NETWORK_LAYER_SIZES.clone());
         	}else if(this.c.equals(SelfAdjustingNetwork.class)) {
-                nextGeneration[i] = new SelfAdjustingNetwork(this.ActivationFunction, this.adjustingNeurons, this.population[0].multiplier, this.NETWORK_LAYER_SIZES.clone()); 
+        		parents[i] = new SelfAdjustingNetwork(this.ActivationFunction, this.adjustingNeurons, this.population[0].multiplier, this.NETWORK_LAYER_SIZES.clone()); 
         	}
+    	}
+        
+    	int bestLengthMinOne = bestNetworks.length - 1;
+        int i = bestLengthMinOne;
+        int next = -1;
+        while(i < nextGeneration.length - 1){
+        	if(i % (bestLengthMinOne) == 0) {
+        		next++;
+        	}
+        	nextGeneration[++i] = this.breed(bestNetworks[i % bestLengthMinOne], bestNetworks[next % bestLengthMinOne]);
         }
+        
         this.population = nextGeneration;
     }
 
@@ -240,19 +220,4 @@ public class Population {
         return child;
     }
 
-    public String mutate(String gene, double chance) {
-        String mutated = "";
-        for (int i = 0; i < gene.length() - 1; i++) {
-            if (Math.random() < chance) {
-                if (gene.substring(i, i + 1).equals("1")) {
-                    mutated += "0";
-                } else {
-                    mutated += "1";
-                }
-            } else {
-                mutated += gene.substring(i, i + 1);
-            }
-        }
-        return mutated;
-    }
 }
