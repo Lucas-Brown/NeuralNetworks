@@ -55,8 +55,21 @@ public class Population {
         }
     }
 
+    public Population(int popSize, int af, int adjustingNeurons, int memoryLength, int memoryWidth, double mutiplier, int... NETWORK_LAYER_SIZES) {
+    	this.c = Brain.class;
+    	this.memWidth = memoryWidth;
+    	this.memLength = memoryLength;
+    	this.adjustingNeurons = adjustingNeurons;
+        this.population = new Brain[popSize];
+        this.ActivationFunction = af;
+        this.NETWORK_LAYER_SIZES = NETWORK_LAYER_SIZES;
+        for (int i = 0; i < this.population.length; i++) {
+            this.population[i] = new Brain(this.ActivationFunction, this.adjustingNeurons, this.memLength, this.memWidth, mutiplier, this.NETWORK_LAYER_SIZES.clone()); // automatically randomly generates new and unique networks
+        }
+    }
+    
     public static void main(String[] args) {
-        Population pop = new Population(72, Network.ZERO_TO_ONE, 10, 2, 10.0, 2, 2, 1); // initialize population
+        Population pop = new Population(72, Network.ZERO_TO_ONE, 2, 10, 2, 10.0, 2, 2, 1); // initialize population
         
         /*
         for (int i = 0; i < 5; i++) { // load current top 5 networks
@@ -152,6 +165,8 @@ public class Population {
         		parents[i] = new GeneticMemoryNetwork(this.ActivationFunction, this.memLength, this.memWidth, this.population[0].multiplier, this.NETWORK_LAYER_SIZES.clone());
         	}else if(this.c.equals(SelfAdjustingNetwork.class)) {
         		parents[i] = new SelfAdjustingNetwork(this.ActivationFunction, this.adjustingNeurons, this.population[0].multiplier, this.NETWORK_LAYER_SIZES.clone()); 
+        	}else if(this.c.equals(Brain.class)) {
+        		parents[i] = new Brain(this.ActivationFunction, this.adjustingNeurons, this.memLength, this.memWidth, this.population[0].multiplier, this.NETWORK_LAYER_SIZES.clone()); 
         	}
     	}
         
@@ -179,6 +194,8 @@ public class Population {
     		child = new GeneticMemoryNetwork(this.ActivationFunction, this.memLength, this.memWidth, this.population[0].multiplier, this.NETWORK_LAYER_SIZES.clone());
     	}else if(this.c.equals(SelfAdjustingNetwork.class)) {
     		child = new SelfAdjustingNetwork(this.ActivationFunction, this.adjustingNeurons, this.population[0].multiplier, this.NETWORK_LAYER_SIZES.clone()); 
+    	}else if(this.c.equals(Brain.class)) {
+    		child = new Brain(this.ActivationFunction, this.adjustingNeurons, this.memLength, this.memWidth, this.population[0].multiplier, this.NETWORK_LAYER_SIZES.clone()); 
     	}else {
     		child = null;
     	}
@@ -215,6 +232,8 @@ public class Population {
         
         if(this.c.equals(SelfAdjustingNetwork.class)) {
         	SelfAdjustingNetwork.breed( (SelfAdjustingNetwork) parentA, (SelfAdjustingNetwork) parentB, (SelfAdjustingNetwork) child,  Population.MUTATION_RATE);
+        }else if(this.c.equals(Brain.class)) {
+        	Brain.breed( (Brain) parentA, (Brain) parentB, (Brain) child,  Population.MUTATION_RATE);
         }
 
         return child;

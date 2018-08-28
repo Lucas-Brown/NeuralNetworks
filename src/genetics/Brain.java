@@ -194,6 +194,8 @@ public class Brain extends SelfAdjustingNetwork{ // this class is a compound of 
         Node ly = new Node("Layers");
         netw.addAttribute(new Attribute("Activation Function", Integer.toString(this.activationFunctionToInt())));
         netw.addAttribute(new Attribute("Adjustment", Integer.toString(this.adjustingNeurons)));
+        netw.addAttribute(new Attribute("length", Integer.toString(this.memoryLength)));
+        netw.addAttribute(new Attribute("width", Integer.toString(this.memoryWidth)));
         netw.addAttribute(new Attribute("Multiplier", Double.toString(this.multiplier)));
         netw.addAttribute(new Attribute("fitness", Double.toString(this.fitness)));
         netw.addAttribute(new Attribute("sizes", Arrays.toString(this.NETWORK_LAYER_SIZES)));
@@ -229,11 +231,13 @@ public class Brain extends SelfAdjustingNetwork{ // this class is a compound of 
         p.load(fileName);
         int af = Integer.parseInt(p.getValue(new String[]{"Network"}, "Activation Function"));
         int ad = Integer.parseInt(p.getValue(new String[]{"Network"}, "Adjustment"));
+        int length = Integer.parseInt(p.getValue(new String[] {"Network"}, "length"));
+        int width = Integer.parseInt(p.getValue(new String[] {"Network"}, "width"));
         double Multiplyer = Double.parseDouble(p.getValue(new String[]{"Network"}, "Multiplier"));
         double Fitness = Double.parseDouble(p.getValue(new String[]{"Network"}, "fitness"));
         String sizes = p.getValue(new String[]{"Network"}, "sizes");
         int[] si = ParserTools.parseIntArray(sizes);
-        SelfAdjustingNetwork ne = new SelfAdjustingNetwork(af, ad, Multiplyer, reverseAdjustLayers(ad, si));
+        Brain ne = new Brain(af, ad, length, width, Multiplyer, reverseAdjustLayers(ad, si));
         ne.fitness = Fitness;
         
         for (int i = 1; i < ne.NETWORK_SIZE; i++) {
