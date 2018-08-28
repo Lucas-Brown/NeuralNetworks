@@ -8,6 +8,8 @@ import trainSet.TrainSet;
 
 import java.util.Arrays;
 
+import genetics.Brain;
+
 public class Network {
 
     public static final double LEARNING_RATE = 0.001;
@@ -366,8 +368,31 @@ public class Network {
     }
 
     public static void main(String[] args) {
-    	Network net = new Network(Network.ZERO_TO_ONE, 10.0, 2, 2, 1);
-    	System.out.println(Arrays.toString(net.calculate(new double[]{3,2})));
+    	class smallGroup extends NetworkGroup{
+
+			public smallGroup(Network[][] networks) {
+				super(networks);
+			}
+
+			@Override
+			public double[] calculate(double... input) {
+				this.groupOutput = new double[this.group[1][0].OUTPUT_SIZE + this.group[1][1].OUTPUT_SIZE];
+				
+				double[] firstOutput = this.group[0][0].calculate(input);
+				System.arraycopy(this.group[1][0].calculate(new double[] {firstOutput[0], firstOutput[1]}), 0, this.groupOutput, 0, this.group[1][0].OUTPUT_SIZE);
+				System.arraycopy(this.group[1][1].calculate(new double[] {firstOutput[2], firstOutput[3], firstOutput[4]}), 0, this.groupOutput, this.group[1][0].OUTPUT_SIZE, this.group[1][1].OUTPUT_SIZE);
+				return this.groupOutput;
+			}
+    		
+    	}
+    	
+    	Brain brian = new Brain(Network.ZERO_TO_ONE, 2, 20, 3, 10.0, 10, 7, 5);
+    	Network net1 = new Network(Network.ZERO_TO_ONE, 7.0, 2, 2, 2);
+    	Network net2 = new Network(Network.ZERO_OR_ONE, 3, 2, 2); 
+    	
+    	smallGroup sg = new smallGroup(new Network[][] {{brian}, {net1, net2}});
+    	System.out.println(Arrays.toString(sg.calculate(new double[] {
+    			1, 2, 3, 4, 5, 6, 7, 8, 9, 10})));
     }
 
     private static void addPerfectExampleData(NN network) {

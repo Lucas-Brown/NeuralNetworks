@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import fullyConnectedNetwork.Network;
 
-public class Population {
+abstract public class Population {
 
     public GeneticNetwork[] population;
     //public final double[] target = new double[]{1, 1, 0, 0};
@@ -69,8 +69,25 @@ public class Population {
     }
     
     public static void main(String[] args) {
-        Population pop = new Population(72, Network.ZERO_TO_ONE, 2, 10, 2, 10.0, 2, 2, 1); // initialize population
+        class population extends Population{
+
+			public population(int popSize, int af, int adjustingNeurons, int memoryLength, int memoryWidth, double mutiplier, int... NETWORK_LAYER_SIZES) {
+				super(popSize, af, adjustingNeurons, memoryLength, memoryWidth, mutiplier, NETWORK_LAYER_SIZES);
+				// TODO Auto-generated constructor stub
+			}
+
+			@Override
+			public void Fitness() {
+		    	for(GeneticNetwork pop: this.population) {
+		    		pop.fitness = 0;
+		    		for(int i = 0; i < 10; i++) {
+		    			pop.fitness += Math.abs(((3 * i) / 2) - pop.calculate(new double[] {i, i * 2})[0]);
+		    		}
+		    	}
+			}
+        }
         
+        population pop = new population(72, Network.ZERO_TO_ONE, 2, 10, 2, 10.0, 2, 2, 1); // initialize population
         /*
         for (int i = 0; i < 5; i++) { // load current top 5 networks
         	try {
@@ -92,14 +109,7 @@ public class Population {
         
     }
 
-    public void Fitness() {
-    	for(GeneticNetwork pop: this.population) {
-    		pop.fitness = 0;
-    		for(int i = 0; i < 10; i++) {
-    			pop.fitness += Math.abs(((3 * i) / 2) - pop.calculate(new double[] {i, i * 2})[0]);
-    		}
-    	}
-    }
+    abstract public void Fitness();
 
     public GeneticNetwork[] highestFitnessNetworks(int topX) {
     	GeneticNetwork[] top = new GeneticNetwork[topX];
