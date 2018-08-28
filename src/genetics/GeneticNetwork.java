@@ -12,18 +12,14 @@ public class GeneticNetwork extends Network {
 
 	double fitness;
 	
-	public GeneticNetwork(int ActivationFunction, double multiplier, int[] NETWORK_LAYER_SIZES) {
+	public GeneticNetwork(int ActivationFunction, double multiplier, int... NETWORK_LAYER_SIZES) {
 		super(ActivationFunction, multiplier, NETWORK_LAYER_SIZES);
 		this.fitness = 0;
 	}
 	
-	public GeneticNetwork(int ActivationFunction, int[] NETWORK_LAYER_SIZES) {
+	public GeneticNetwork(int ActivationFunction, int... NETWORK_LAYER_SIZES) {
 		super(ActivationFunction, NETWORK_LAYER_SIZES);
 		this.fitness = 0;
-	}
-	
-	public void breed (SelfAdjustingNetwork parentA, SelfAdjustingNetwork parentB, double MUTATION_RATE) {
-		System.err.println("breed is not meant for this class");
 	}
 	
 	@Override

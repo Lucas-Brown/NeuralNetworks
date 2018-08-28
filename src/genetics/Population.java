@@ -14,7 +14,7 @@ public class Population {
     private static final int DIVERSITY_RATING = 1; // how many new networks get added each generation
     private static final double MUTATION_RATE = 0.1; //max percent change from original value.
     private static final boolean isHighestScoreBest = false;
-    private static final String path = "C:\\Users\\Home-Lucas\\Documents\\Saves\\NeuralNetworks\\GeneticNetworks";
+    private static final String path = "C:\\Users\\Home-Lucas\\Documents\\Saves\\NeuralNetworks\\GeneticNetworks\\";
     private final int ActivationFunction;
     private final Class<?> c;
 
@@ -56,7 +56,7 @@ public class Population {
     }
 
     public static void main(String[] args) {
-        Population pop = new Population(72, Network.ZERO_TO_ONE, 2, 10.0, 2, 2, 1); // initialize population
+        Population pop = new Population(72, Network.ZERO_TO_ONE, 10, 2, 10.0, 2, 2, 1); // initialize population
         
         /*
         for (int i = 0; i < 5; i++) { // load current top 5 networks
@@ -214,7 +214,7 @@ public class Population {
         }
         
         if(this.c.equals(SelfAdjustingNetwork.class)) {
-        	child.breed( (SelfAdjustingNetwork) parentA, (SelfAdjustingNetwork) parentB, Population.MUTATION_RATE);
+        	SelfAdjustingNetwork.breed( (SelfAdjustingNetwork) parentA, (SelfAdjustingNetwork) parentB, (SelfAdjustingNetwork) child,  Population.MUTATION_RATE);
         }
 
         return child;

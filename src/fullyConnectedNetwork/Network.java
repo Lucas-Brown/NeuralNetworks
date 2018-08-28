@@ -8,6 +8,8 @@ import trainSet.TrainSet;
 
 import java.util.Arrays;
 
+import genetics.Brain;
+
 public class Network {
 
     public static final double LEARNING_RATE = 0.001;
@@ -392,17 +394,20 @@ public class Network {
     }
 
     public static void main(String[] args) {
-    	NN nn = new NN(Network.ZERO_TO_ONE, 90.0, 2, 2, 1);
-    	
-    	
-    	try {
-    		nn.set = TrainSet.loadTrainSet("C:\\Users\\Home-Lucas\\Documents\\Saves\\TrainSets\\Test.txt");
-    	}catch (Exception e) {
-    		e.printStackTrace();
-    		Network.addExampleData(nn);
-    	}
-    	System.out.println(Arrays.toString(nn.set.getInput(0)));
-    	//nn.set.saveTrainSet("C:\\Users\\Home-Lucas\\Documents\\Saves\\TrainSets\\Test.txt");
+    	Brain brian = new Brain(Network.ZERO_TO_ONE, 2, 10, 2, 10.0, 2,2,1);
+    	System.out.println(brian.OUTPUT_SIZE);
+    	System.out.println();
+    	System.out.println(Arrays.toString(brian.calculate(new double[] {3, 1})));
+    	System.out.println(Arrays.toString(brian.calculate(new double[] {3, 1})));
+    	System.out.println(Arrays.toString(brian.calculate(new double[] {3, 1})));
+    	System.out.println(Arrays.toString(brian.calculate(new double[] {3, 1})));
+    	System.out.println(Arrays.toString(brian.calculate(new double[] {3, 1})));
+    	System.out.println(Arrays.toString(brian.calculate(new double[] {3, 1})));
+    	System.out.println(Arrays.toString(brian.calculate(new double[] {3, 1})));
+    	System.out.println(Arrays.toString(brian.calculate(new double[] {3, 1})));
+    	System.out.println(Arrays.toString(brian.calculate(new double[] {3, 1})));
+    	System.out.println(Arrays.toString(brian.calculate(new double[] {3, 1})));
+    	System.out.println(Arrays.toString(brian.calculate(new double[] {3, 1})));
     }
 
     private static void addPerfectExampleData(NN network) {
