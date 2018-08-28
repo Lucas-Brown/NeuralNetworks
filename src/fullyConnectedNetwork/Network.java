@@ -122,28 +122,41 @@ public class Network {
             return null;
         }
         this.output[0] = input;
+        ActivationFunction AF = null;
         switch (this.ACTIVATION_FUNCTION) {
             case 0:
-                this.unitStepLoops();
+            	AF = new UnitStep();
                 break;
             case 1:
-                this.signumLoops();
+            	AF = new Signum();
                 break;
             case 2:
-                this.sigmoidLoops();
+                AF = new Sigmoid();
                 break;
             case 3:
-                this.hyperbolicTangentLoops();
+                AF = new HyperbolicTangent();
                 break;
             case 4:
-                this.jumpStepLoops();
+                AF = new JumpStep();
                 break;
             case 5:
-                this.jumpSignumLoops();
+                AF = new JumpSignum();
                 break;
             case 6:
-                this.rectifierLoops();
+                AF = new Rectifier();
                 break;
+        }
+        
+        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
+            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
+
+                double sum = this.bias[layer][neuron];
+                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
+                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
+                }
+                this.output[layer][neuron] = AF.activator(sum);
+                this.output_derivative[layer][neuron] = Math.exp(-sum) / Math.pow((1 + Math.exp(-sum)), 2);
+            }
         }
         
         NetworkTools.multiplyArray(this.output[this.NETWORK_SIZE - 1], this.multiplier);
@@ -159,7 +172,7 @@ public class Network {
                 for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
                     sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
-                this.output[layer][neuron] = this.unitStep(sum);
+                this.output[layer][neuron] = new UnitStep().activator(sum);
                 this.output_derivative[layer][neuron] = this.output[layer][neuron];
             }
         }
@@ -173,7 +186,7 @@ public class Network {
                 for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
                     sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
-                this.output[layer][neuron] = this.signum(sum);
+                this.output[layer][neuron] = new Signum().activator(sum);
                 this.output_derivative[layer][neuron] = this.output[layer][neuron];
             }
         }
@@ -187,7 +200,7 @@ public class Network {
                 for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
                     sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
-                this.output[layer][neuron] = this.sigmoid(sum);
+                this.output[layer][neuron] = new Sigmoid().activator(sum);
                 this.output_derivative[layer][neuron] = Math.exp(-sum) / Math.pow((1 + Math.exp(-sum)), 2);
             }
         }
@@ -201,7 +214,7 @@ public class Network {
                 for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
                     sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
-                this.output[layer][neuron] = this.hyperbolicTangent(sum);
+                this.output[layer][neuron] = new HyperbolicTangent().activator(sum);
                 this.output_derivative[layer][neuron] = 4.0 / Math.pow((Math.exp(sum) + Math.exp(-sum)), 2);
             }
         }
@@ -215,7 +228,7 @@ public class Network {
                 for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
                     sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
-                this.output[layer][neuron] = this.jumpStep(sum);
+                this.output[layer][neuron] = new JumpStep().activator(sum);
                 this.output_derivative[layer][neuron] = this.output[layer][neuron];
             }
         }
@@ -229,7 +242,7 @@ public class Network {
                 for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
                     sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
-                this.output[layer][neuron] = this.jumpSignum(sum);
+                this.output[layer][neuron] = new JumpSignum().activator(sum);
                 this.output_derivative[layer][neuron] = this.output[layer][neuron];
             }
         }
@@ -243,7 +256,7 @@ public class Network {
                 for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
                     sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
-                this.output[layer][neuron] = this.rectifier(sum);
+                this.output[layer][neuron] = new Rectifier().activator(sum);
                 this.output_derivative[layer][neuron] = this.output[layer][neuron];
             }
         }
@@ -347,67 +360,83 @@ public class Network {
         }
     }
 
-    protected double sigmoid(double x) {// 0 - 1
-        return 1 / (1 + Math.exp(-x));
+    protected class Sigmoid extends ActivationFunction{
+
+		@Override
+		public double activator(double x) {
+			return 1 / (1 + Math.exp(-x));
+		}
+    }
+    
+    protected class HyperbolicTangent extends ActivationFunction{
+
+		@Override
+		public double activator(double x) {
+			return Math.tanh(x);
+		}
+    }
+    
+    protected class UnitStep extends ActivationFunction{
+
+		@Override
+		public double activator(double x) {
+			if (x > 0.5) {
+	            return 1;
+	        } else {
+	            return 0;
+	        }
+		}
     }
 
-    protected double hyperbolicTangent(double x) { // -1 - 1
-    	return Math.tanh(x);
+    protected class Signum extends ActivationFunction{
+
+		@Override
+		public double activator(double x) {
+			if (x >= 0) {
+	            return 1;
+	        } else {
+	        	return -1;
+	        }
+		}
+    }
+    
+    protected class JumpStep extends ActivationFunction{
+
+		@Override
+		public double activator(double x) {
+			if (x > 0.5) {
+	            return 1;
+	        } else {
+	            return 0;
+	        } 
+		}
+    }
+    
+    protected class JumpSignum extends ActivationFunction{
+
+		@Override
+		public double activator(double x) {
+			if (x > 1) {
+	            return 1;
+	        } else if (x < -1) {
+	            return -1;
+	        } else {
+	            return Math.round(x);
+	        }
+		}
     }
 
-    protected double unitStep(double x) {// 1 or 0
-        if (x > 0.5) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
+    protected class Rectifier extends ActivationFunction{
 
-    protected double signum(double x) {//values -1 or 1
-        if (x >= 0) {
-            return 1;
-        } else {
-        	return -1;
-        }
-    }
-
-    protected double jumpStep(double x) {
-        if (x > 0.5) {
-            return 1;
-        } else {
-            return 0;
-        } 
-    }
-
-    protected double jumpSignum(double x) {
-        if (x > 1) {
-            return 1;
-        } else if (x < -1) {
-            return -1;
-        } else {
-            return Math.round(x);
-        }
-    }
-
-    protected double rectifier(double x) {
-        return Math.log(1 + Math.exp(x));
+		@Override
+		public double activator(double x) {
+			return Math.log(1 + Math.exp(x));
+		}
     }
 
     public static void main(String[] args) {
-    	Brain brian = new Brain(Network.ZERO_TO_ONE, 2, 10, 2, 10.0, 2,2,1);
-    	System.out.println(brian.OUTPUT_SIZE);
-    	System.out.println();
-    	System.out.println(Arrays.toString(brian.calculate(new double[] {3, 1})));
-    	System.out.println(Arrays.toString(brian.calculate(new double[] {3, 1})));
-    	System.out.println(Arrays.toString(brian.calculate(new double[] {3, 1})));
-    	System.out.println(Arrays.toString(brian.calculate(new double[] {3, 1})));
-    	System.out.println(Arrays.toString(brian.calculate(new double[] {3, 1})));
-    	System.out.println(Arrays.toString(brian.calculate(new double[] {3, 1})));
-    	System.out.println(Arrays.toString(brian.calculate(new double[] {3, 1})));
-    	System.out.println(Arrays.toString(brian.calculate(new double[] {3, 1})));
-    	System.out.println(Arrays.toString(brian.calculate(new double[] {3, 1})));
-    	System.out.println(Arrays.toString(brian.calculate(new double[] {3, 1})));
-    	System.out.println(Arrays.toString(brian.calculate(new double[] {3, 1})));
+    	Network net = new Network(Network.ZERO_TO_ONE, 10.0, 2, 2, 1);
+    	System.out.println(Arrays.toString(net.calculate(new double[]{3,2})));
     }
 
     private static void addPerfectExampleData(NN network) {
