@@ -20,7 +20,7 @@ public class Network {
     public static final int NEGATIVE_X_JUMP_X = 5;
     public static final int RECTIFIER = 6; // 0 - infinity
 
-    public final int ACTIVATION_FUNCTION;
+    public final ActivationFunction ACTIVATION_FUNCTION;
     public final double multiplier;
 
     public double[][] output;
@@ -43,8 +43,34 @@ public class Network {
     //public double[][][] biasCoefficients;
 
     public Network(int ActivationFunction, int... NETWORK_LAYER_SIZES) {
+    	switch (ActivationFunction) {
+        case 0:
+        	this.ACTIVATION_FUNCTION = new UnitStep();
+            break;
+        case 1:
+        	this.ACTIVATION_FUNCTION = new Signum();
+            break;
+        case 2:
+        	this.ACTIVATION_FUNCTION = new Sigmoid();
+            break;
+        case 3:
+        	this.ACTIVATION_FUNCTION = new HyperbolicTangent();
+            break;
+        case 4:
+        	this.ACTIVATION_FUNCTION = new JumpStep();
+            break;
+        case 5:
+        	this.ACTIVATION_FUNCTION = new JumpSignum();
+            break;
+        case 6:
+        	this.ACTIVATION_FUNCTION = new Rectifier();
+            break;
+        default:
+        	this.ACTIVATION_FUNCTION = null;
+        	break;
+    	}
+    	
         this.multiplier = 1;
-        this.ACTIVATION_FUNCTION = ActivationFunction;
         this.NETWORK_LAYER_SIZES = NETWORK_LAYER_SIZES;
         this.INPUT_SIZE = NETWORK_LAYER_SIZES[0];
         this.NETWORK_SIZE = NETWORK_LAYER_SIZES.length;
@@ -83,7 +109,33 @@ public class Network {
     	} else {
     		this.multiplier = multiplier;
     	}
-        this.ACTIVATION_FUNCTION = ActivationFunction;
+
+    	switch (ActivationFunction) {
+        case 0:
+        	this.ACTIVATION_FUNCTION = new UnitStep();
+            break;
+        case 1:
+        	this.ACTIVATION_FUNCTION = new Signum();
+            break;
+        case 2:
+        	this.ACTIVATION_FUNCTION = new Sigmoid();
+            break;
+        case 3:
+        	this.ACTIVATION_FUNCTION = new HyperbolicTangent();
+            break;
+        case 4:
+        	this.ACTIVATION_FUNCTION = new JumpStep();
+            break;
+        case 5:
+        	this.ACTIVATION_FUNCTION = new JumpSignum();
+            break;
+        case 6:
+        	this.ACTIVATION_FUNCTION = new Rectifier();
+            break;
+        default:
+        	this.ACTIVATION_FUNCTION = null;
+        	break;
+    	}
         this.NETWORK_LAYER_SIZES = NETWORK_LAYER_SIZES;
         this.INPUT_SIZE = NETWORK_LAYER_SIZES[0];
         this.NETWORK_SIZE = NETWORK_LAYER_SIZES.length;
@@ -120,32 +172,8 @@ public class Network {
             return null;
         }
         this.output[0] = input;
-        ActivationFunction AF = null;
-        switch (this.ACTIVATION_FUNCTION) {
-            case 0:
-            	AF = new UnitStep();
-                break;
-            case 1:
-            	AF = new Signum();
-                break;
-            case 2:
-                AF = new Sigmoid();
-                break;
-            case 3:
-                AF = new HyperbolicTangent();
-                break;
-            case 4:
-                AF = new JumpStep();
-                break;
-            case 5:
-                AF = new JumpSignum();
-                break;
-            case 6:
-                AF = new Rectifier();
-                break;
-        }
         
-        this.loops(AF);
+        this.loops(this.ACTIVATION_FUNCTION);
         NetworkTools.multiplyArray(this.output[this.NETWORK_SIZE - 1], this.multiplier);
         
         return this.output[this.NETWORK_SIZE - 1];
@@ -422,7 +450,7 @@ public class Network {
         Node root = p.getContent();
         Node netw = new Node("Network");
         Node ly = new Node("Layers");
-        netw.addAttribute(new Attribute("Activation Function", Integer.toString(this.ACTIVATION_FUNCTION)));
+        netw.addAttribute(new Attribute("Activation Function", Integer.toString(this.activationFunctionToInt())));
         netw.addAttribute(new Attribute("Multiplier", Double.toString(this.multiplier)));
         netw.addAttribute(new Attribute("sizes", Arrays.toString(this.NETWORK_LAYER_SIZES)));
         netw.addChild(ly);
@@ -480,7 +508,7 @@ public class Network {
     }
     
     public static Network copy(Network network) {
-        Network coppied = new Network(network.ACTIVATION_FUNCTION, network.multiplier, network.NETWORK_LAYER_SIZES);
+        Network coppied = new Network(network.activationFunctionToInt(), network.multiplier, network.NETWORK_LAYER_SIZES);
         for (int i = 0; i < network.bias.length; i++) {
             System.arraycopy(network.bias[i], 0, coppied.bias[i], 0, network.bias[i].length);
         }
@@ -490,5 +518,25 @@ public class Network {
             }
         }
         return coppied;
+    }
+    
+    public int activationFunctionToInt() {
+    	if(this.ACTIVATION_FUNCTION.equals(new UnitStep())){
+    		return 0;
+    	}else if(this.ACTIVATION_FUNCTION.equals(new Signum())){
+    		return 1;
+    	}else if(this.ACTIVATION_FUNCTION.equals(new Sigmoid())){
+    		return 2;
+    	}else if(this.ACTIVATION_FUNCTION.equals(new HyperbolicTangent())){
+    		return 3;
+    	}else if(this.ACTIVATION_FUNCTION.equals(new JumpStep())){
+    		return 4;
+    	}else if(this.ACTIVATION_FUNCTION.equals(new JumpSignum())){
+    		return 5;
+    	}else if(this.ACTIVATION_FUNCTION.equals(new Rectifier())){
+    		return 6;
+    	}else{ 
+    		return 7;
+    	} 
     }
 }

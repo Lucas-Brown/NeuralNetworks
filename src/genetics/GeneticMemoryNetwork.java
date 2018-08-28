@@ -75,31 +75,19 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
             return null;
         }
         this.output[0] = input;
-        ActivationFunction AF = null;
-        switch (this.ACTIVATION_FUNCTION) {
-            case 0:
-            	AF = new UnitStep();
-                break;
-            case 1:
-            	AF = new Signum();
-                break;
-            case 2:
-                AF = new Sigmoid();
-                break;
-            case 3:
-                AF = new HyperbolicTangent();
-                break;
-            case 4:
-                AF = new JumpStep();
-                break;
-            case 5:
-                AF = new JumpSignum();
-                break;
-            case 6:
-                AF = new Rectifier();
-                break;
-        }
+        this.loops(this.ACTIVATION_FUNCTION);
         
+        NetworkTools.multiplyArray(this.output[this.NETWORK_SIZE - 1], this.multiplier);
+        
+        double[] returned = new double[this.OUTPUT_SIZE - this.memoryWidth]; 
+        double[] memorySet = new double[this.memoryWidth];
+        System.arraycopy(this.output[this.NETWORK_SIZE - 1], 0, returned, 0, returned.length);
+        System.arraycopy(this.output[this.NETWORK_SIZE - 1], returned.length, memorySet, 0, memorySet.length);
+        NetworkTools.push(this.memory, memorySet);
+        return returned;
+    }
+    
+    public void loops(ActivationFunction AF) {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 
@@ -118,15 +106,6 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
                 this.output_derivative[layer][neuron] = Math.exp(-sum) / Math.pow((1 + Math.exp(-sum)), 2);
             }
         }
-        
-        NetworkTools.multiplyArray(this.output[this.NETWORK_SIZE - 1], this.multiplier);
-        
-        double[] returned = new double[this.OUTPUT_SIZE - this.memoryWidth]; 
-        double[] memorySet = new double[this.memoryWidth];
-        System.arraycopy(this.output[this.NETWORK_SIZE - 1], 0, returned, 0, returned.length);
-        System.arraycopy(this.output[this.NETWORK_SIZE - 1], returned.length, memorySet, 0, memorySet.length);
-        NetworkTools.push(this.memory, memorySet);
-        return returned;
     }
     
     static int[] adjustLayers(int memoryLength, int memoryWidth, int... networkLayers) {
@@ -158,7 +137,7 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
         Node root = p.getContent();
         Node netw = new Node("Network");
         Node ly = new Node("Layers");
-        netw.addAttribute(new Attribute("Activation Function", Integer.toString(this.ACTIVATION_FUNCTION)));
+        netw.addAttribute(new Attribute("Activation Function", Integer.toString(this.activationFunctionToInt())));
         netw.addAttribute(new Attribute("Multiplier", Double.toString(this.multiplier)));
         netw.addAttribute(new Attribute("fitness", Double.toString(this.fitness)));
         netw.addAttribute(new Attribute("length", Integer.toString(this.memoryLength)));

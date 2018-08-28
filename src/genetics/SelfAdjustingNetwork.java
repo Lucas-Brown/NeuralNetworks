@@ -50,31 +50,7 @@ public class SelfAdjustingNetwork extends GeneticNetwork{ // uses the output of 
             return null;
         }
         this.output[0] = input;
-        ActivationFunction AF = null;
-        switch (this.ACTIVATION_FUNCTION) {
-            case 0:
-            	AF = new UnitStep();
-                break;
-            case 1:
-            	AF = new Signum();
-                break;
-            case 2:
-                AF = new Sigmoid();
-                break;
-            case 3:
-                AF = new HyperbolicTangent();
-                break;
-            case 4:
-                AF = new JumpStep();
-                break;
-            case 5:
-                AF = new JumpSignum();
-                break;
-            case 6:
-                AF = new Rectifier();
-                break;
-        }
-        this.loops(AF);
+        this.loops(this.ACTIVATION_FUNCTION);
         
         NetworkTools.multiplyArray(this.output[this.NETWORK_SIZE - 1], this.multiplier);
         
@@ -176,7 +152,7 @@ public class SelfAdjustingNetwork extends GeneticNetwork{ // uses the output of 
         Node root = p.getContent();
         Node netw = new Node("Network");
         Node ly = new Node("Layers");
-        netw.addAttribute(new Attribute("Activation Function", Integer.toString(this.ACTIVATION_FUNCTION)));
+        netw.addAttribute(new Attribute("Activation Function", Integer.toString(this.activationFunctionToInt())));
         netw.addAttribute(new Attribute("Adjustment", Integer.toString(this.adjustingNeurons)));
         netw.addAttribute(new Attribute("Multiplier", Double.toString(this.multiplier)));
         netw.addAttribute(new Attribute("fitness", Double.toString(this.fitness)));

@@ -29,7 +29,7 @@ public class GeneticNetwork extends Network {
         Node root = p.getContent();
         Node netw = new Node("Network");
         Node ly = new Node("Layers");
-        netw.addAttribute(new Attribute("Activation Function", Integer.toString(this.ACTIVATION_FUNCTION)));
+        netw.addAttribute(new Attribute("Activation Function", Integer.toString(this.activationFunctionToInt())));
         netw.addAttribute(new Attribute("Multiplier", Double.toString(this.multiplier)));
         netw.addAttribute(new Attribute("fitness", Double.toString(this.fitness)));
         netw.addAttribute(new Attribute("sizes", Arrays.toString(this.NETWORK_LAYER_SIZES)));
