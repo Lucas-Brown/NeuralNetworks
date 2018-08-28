@@ -2,6 +2,7 @@ package genetics;
 
 import java.util.Arrays;
 
+import fullyConnectedNetwork.ActivationFunction;
 import fullyConnectedNetwork.NetworkTools;
 import parser.Attribute;
 import parser.Node;
@@ -74,28 +75,48 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
             return null;
         }
         this.output[0] = input;
+        ActivationFunction AF = null;
         switch (this.ACTIVATION_FUNCTION) {
             case 0:
-                this.unitStepLoops();
+            	AF = new UnitStep();
                 break;
             case 1:
-                this.signumLoops();
+            	AF = new Signum();
                 break;
             case 2:
-                this.sigmoidLoops();
+                AF = new Sigmoid();
                 break;
             case 3:
-                this.hyperbolicTangentLoops();
+                AF = new HyperbolicTangent();
                 break;
             case 4:
-                this.jumpStepLoops();
+                AF = new JumpStep();
                 break;
             case 5:
-                this.jumpSignumLoops();
+                AF = new JumpSignum();
                 break;
             case 6:
-                this.rectifierLoops();
+                AF = new Rectifier();
                 break;
+        }
+        
+        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
+            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
+
+            	double sum = this.bias[layer][neuron];
+                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
+                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
+                }
+                if (neuron >= super.NETWORK_LAYER_SIZES[layer] - this.memoryWidth) {
+                    if (sum < 0 || sum > this.memoryLength) { // default to no value
+                        sum = 0;
+                    }else{
+                        sum = this.memory[(int) sum][super.NETWORK_LAYER_SIZES[layer] - 1 - neuron]; // the sum is the decider of what value the memory returns
+                    }
+                }
+                this.output[layer][neuron] = AF.activator(sum);
+                this.output_derivative[layer][neuron] = Math.exp(-sum) / Math.pow((1 + Math.exp(-sum)), 2);
+            }
         }
         
         NetworkTools.multiplyArray(this.output[this.NETWORK_SIZE - 1], this.multiplier);
@@ -106,129 +127,6 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
         System.arraycopy(this.output[this.NETWORK_SIZE - 1], returned.length, memorySet, 0, memorySet.length);
         NetworkTools.push(this.memory, memorySet);
         return returned;
-    }
-    
-    @Override
-    protected void unitStepLoops() {
-        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
-            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
-
-                double sum = this.bias[layer][neuron];
-                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
-                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
-                }
-                sum = memoryLoopModifier(layer, neuron, sum);
-                this.output[layer][neuron] = this.unitStep(sum);
-                this.output_derivative[layer][neuron] = this.output[layer][neuron];
-            }
-        }
-    }
-    
-    @Override
-    protected void signumLoops() {
-        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
-            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
-
-                double sum = this.bias[layer][neuron];
-                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
-                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
-                }
-                sum = memoryLoopModifier(layer, neuron, sum);
-                this.output[layer][neuron] = this.signum(sum);
-                this.output_derivative[layer][neuron] = this.output[layer][neuron];
-            }
-        }
-    }
-
-    @Override
-    protected void sigmoidLoops() {
-        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
-            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
-
-            	double sum = this.bias[layer][neuron];
-                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
-                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
-                }
-                sum = memoryLoopModifier(layer, neuron, sum);
-                this.output[layer][neuron] = this.sigmoid(sum);
-                this.output_derivative[layer][neuron] = Math.exp(-sum) / Math.pow((1 + Math.exp(-sum)), 2);
-            }
-        }
-    }
-
-    @Override
-    protected void hyperbolicTangentLoops() {
-        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
-            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
-
-                double sum = this.bias[layer][neuron];
-                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
-                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
-                }
-                sum = memoryLoopModifier(layer, neuron, sum);
-                this.output[layer][neuron] = this.hyperbolicTangent(sum);
-                this.output_derivative[layer][neuron] = 4.0 / Math.pow((Math.exp(sum) + Math.exp(-sum)), 2);
-            }
-        }
-    }
-
-    @Override
-    protected void jumpStepLoops() {
-        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
-            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
-
-                double sum = this.bias[layer][neuron];
-                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
-                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
-                }
-                sum = memoryLoopModifier(layer, neuron, sum);
-                this.output[layer][neuron] = this.jumpStep(sum);
-                this.output_derivative[layer][neuron] = this.output[layer][neuron];
-            }
-        }
-    }
-
-    @Override
-    protected void jumpSignumLoops() {
-        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
-            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
-
-                double sum = this.bias[layer][neuron];
-                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
-                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
-                }
-                sum = memoryLoopModifier(layer, neuron, sum);
-                this.output[layer][neuron] = this.jumpSignum(sum);
-                this.output_derivative[layer][neuron] = this.output[layer][neuron];
-            }
-        }
-    }
-
-    @Override
-    protected void rectifierLoops() {
-        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
-            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
-
-                double sum = this.bias[layer][neuron];
-                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
-                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
-                }
-                sum = memoryLoopModifier(layer, neuron, sum);
-                this.output[layer][neuron] = this.rectifier(sum);
-                this.output_derivative[layer][neuron] = this.output[layer][neuron];
-            }
-        }
-    }
-
-    private double memoryLoopModifier(int layer, int neuron, double sum) {
-        if (neuron >= super.NETWORK_LAYER_SIZES[layer] - this.memoryWidth) {
-            if (sum < 0 || sum > this.memoryLength) { // default to no value
-                sum = 0;
-            }else{
-                sum = this.memory[(int) sum][super.NETWORK_LAYER_SIZES[layer] - 1 - neuron]; // the sum is the decider of what value the memory returns
-            }
-        }
-        return sum;
     }
     
     static int[] adjustLayers(int memoryLength, int memoryWidth, int... networkLayers) {

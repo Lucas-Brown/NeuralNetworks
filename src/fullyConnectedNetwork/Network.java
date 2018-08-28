@@ -8,8 +8,6 @@ import trainSet.TrainSet;
 
 import java.util.Arrays;
 
-import genetics.Brain;
-
 public class Network {
 
     public static final double LEARNING_RATE = 0.001;
@@ -147,6 +145,13 @@ public class Network {
                 break;
         }
         
+        this.loops(AF);
+        NetworkTools.multiplyArray(this.output[this.NETWORK_SIZE - 1], this.multiplier);
+        
+        return this.output[this.NETWORK_SIZE - 1];
+    }
+    
+    protected void loops(ActivationFunction AF) {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
 
@@ -156,108 +161,6 @@ public class Network {
                 }
                 this.output[layer][neuron] = AF.activator(sum);
                 this.output_derivative[layer][neuron] = Math.exp(-sum) / Math.pow((1 + Math.exp(-sum)), 2);
-            }
-        }
-        
-        NetworkTools.multiplyArray(this.output[this.NETWORK_SIZE - 1], this.multiplier);
-        
-        return this.output[this.NETWORK_SIZE - 1];
-    }
-
-    protected void unitStepLoops() {
-        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
-            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
-
-                double sum = this.bias[layer][neuron];
-                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
-                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
-                }
-                this.output[layer][neuron] = new UnitStep().activator(sum);
-                this.output_derivative[layer][neuron] = this.output[layer][neuron];
-            }
-        }
-    }
-
-    protected void signumLoops() {
-        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
-            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
-
-                double sum = this.bias[layer][neuron];
-                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
-                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
-                }
-                this.output[layer][neuron] = new Signum().activator(sum);
-                this.output_derivative[layer][neuron] = this.output[layer][neuron];
-            }
-        }
-    }
-
-    protected void sigmoidLoops() {
-        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
-            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
-
-                double sum = this.bias[layer][neuron];
-                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
-                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
-                }
-                this.output[layer][neuron] = new Sigmoid().activator(sum);
-                this.output_derivative[layer][neuron] = Math.exp(-sum) / Math.pow((1 + Math.exp(-sum)), 2);
-            }
-        }
-    }
-
-    protected void hyperbolicTangentLoops() {
-        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
-            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
-
-                double sum = this.bias[layer][neuron];
-                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
-                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
-                }
-                this.output[layer][neuron] = new HyperbolicTangent().activator(sum);
-                this.output_derivative[layer][neuron] = 4.0 / Math.pow((Math.exp(sum) + Math.exp(-sum)), 2);
-            }
-        }
-    }
-
-    protected void jumpStepLoops() {
-        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
-            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
-
-                double sum = this.bias[layer][neuron];
-                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
-                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
-                }
-                this.output[layer][neuron] = new JumpStep().activator(sum);
-                this.output_derivative[layer][neuron] = this.output[layer][neuron];
-            }
-        }
-    }
-
-    protected void jumpSignumLoops() {
-        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
-            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
-
-                double sum = this.bias[layer][neuron];
-                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
-                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
-                }
-                this.output[layer][neuron] = new JumpSignum().activator(sum);
-                this.output_derivative[layer][neuron] = this.output[layer][neuron];
-            }
-        }
-    }
-
-    protected void rectifierLoops() {
-        for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
-            for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
-
-                double sum = this.bias[layer][neuron];
-                for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
-                    sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
-                }
-                this.output[layer][neuron] = new Rectifier().activator(sum);
-                this.output_derivative[layer][neuron] = this.output[layer][neuron];
             }
         }
     }
@@ -360,7 +263,7 @@ public class Network {
         }
     }
 
-    protected class Sigmoid extends ActivationFunction{
+    public class Sigmoid extends ActivationFunction{
 
 		@Override
 		public double activator(double x) {
@@ -368,7 +271,7 @@ public class Network {
 		}
     }
     
-    protected class HyperbolicTangent extends ActivationFunction{
+    public class HyperbolicTangent extends ActivationFunction{
 
 		@Override
 		public double activator(double x) {
@@ -376,7 +279,7 @@ public class Network {
 		}
     }
     
-    protected class UnitStep extends ActivationFunction{
+    public class UnitStep extends ActivationFunction{
 
 		@Override
 		public double activator(double x) {
@@ -388,7 +291,7 @@ public class Network {
 		}
     }
 
-    protected class Signum extends ActivationFunction{
+    public class Signum extends ActivationFunction{
 
 		@Override
 		public double activator(double x) {
@@ -400,7 +303,7 @@ public class Network {
 		}
     }
     
-    protected class JumpStep extends ActivationFunction{
+    public class JumpStep extends ActivationFunction{
 
 		@Override
 		public double activator(double x) {
@@ -412,7 +315,7 @@ public class Network {
 		}
     }
     
-    protected class JumpSignum extends ActivationFunction{
+    public class JumpSignum extends ActivationFunction{
 
 		@Override
 		public double activator(double x) {
@@ -426,7 +329,7 @@ public class Network {
 		}
     }
 
-    protected class Rectifier extends ActivationFunction{
+    public class Rectifier extends ActivationFunction{
 
 		@Override
 		public double activator(double x) {
