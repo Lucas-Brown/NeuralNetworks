@@ -9,6 +9,7 @@ import trainSet.TrainSet;
 import java.util.Arrays;
 
 import genetics.Brain;
+import genetics.NetworkGroup;
 
 public class Network {
 
@@ -551,20 +552,19 @@ public class Network {
     }
     
     public int activationFunctionToInt() {
-    	String af = this.ACTIVATION_FUNCTION.toString().substring(0, this.ACTIVATION_FUNCTION.toString().indexOf("@"));
-    	if(af.equals(new UnitStep().toString().substring(0, new UnitStep().toString().indexOf("@")))){
+    	if(this.ACTIVATION_FUNCTION.getClass().equals(UnitStep.class)){
     		return 0;
-    	}else if(af.equals(new Signum().toString().substring(0, new Signum().toString().indexOf("@")))){
+    	}else if(this.ACTIVATION_FUNCTION.getClass().equals(Signum.class)){
     		return 1;
-    	}else if(af.equals(new Sigmoid().toString().substring(0, new Sigmoid().toString().indexOf("@")))){
+    	}else if(this.ACTIVATION_FUNCTION.getClass().equals(Sigmoid.class)){
     		return 2;
-    	}else if(af.equals(new HyperbolicTangent().toString().substring(0, new HyperbolicTangent().toString().indexOf("@")))){
+    	}else if(this.ACTIVATION_FUNCTION.getClass().equals(HyperbolicTangent.class)){
     		return 3;
-    	}else if(af.equals(new JumpStep().toString().substring(0, new JumpStep().toString().indexOf("@")))){
+    	}else if(this.ACTIVATION_FUNCTION.getClass().equals(JumpStep.class)){
     		return 4;
-    	}else if(af.equals(new JumpSignum().toString().substring(0, new JumpSignum().toString().indexOf("@")))){
+    	}else if(this.ACTIVATION_FUNCTION.getClass().equals(JumpSignum.class)){
     		return 5;
-    	}else if(af.equals(new Rectifier().toString().substring(0, new Rectifier().toString().indexOf("@")))){
+    	}else if(this.ACTIVATION_FUNCTION.getClass().equals(Rectifier.class)){
     		return 6;
     	}else{ 
     		return 7;

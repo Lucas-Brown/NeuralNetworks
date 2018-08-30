@@ -1,23 +1,22 @@
-package fullyConnectedNetwork;
+package genetics;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-import genetics.Brain;
-import genetics.GeneticMemoryNetwork;
-import genetics.GeneticNetwork;
-import genetics.SelfAdjustingNetwork;
+import fullyConnectedNetwork.Network;
 
-public abstract class NetworkGroup {
+public abstract class NetworkGroup{
 	
 	public Network[][] group;
 	public final int[] NETWORK_LAYER_SIZES;
-	public double[] groupOutput;
+	public double fitness;
+	private double[] groupOutput;
 	
 	public NetworkGroup(Network[][] networks) {
 		this.group = networks;
+		this.fitness = 0;
 		this.NETWORK_LAYER_SIZES = new int[this.group.length];
 		for(int i = 0; i < this.NETWORK_LAYER_SIZES.length; i++) {
 			this.NETWORK_LAYER_SIZES[i] = this.group[i].length;
@@ -69,6 +68,7 @@ public abstract class NetworkGroup {
 			}
 		}
 		this.group = group;
+		this.fitness = 0;
 		this.NETWORK_LAYER_SIZES = new int[this.group.length];
 		for(int i = 0; i < this.NETWORK_LAYER_SIZES.length; i++) {
 			this.NETWORK_LAYER_SIZES[i] = this.group[i].length;
