@@ -373,6 +373,10 @@ public class Network {
 			public smallGroup(Network[][] networks) {
 				super(networks);
 			}
+			
+			public smallGroup(String filePath) {
+				super(filePath);
+			}
 
 			@Override
 			public double[] calculate(double... input) {
@@ -391,8 +395,9 @@ public class Network {
     	Network net2 = new Network(Network.ZERO_OR_ONE, 3, 2, 2); 
     	
     	smallGroup sg = new smallGroup(new Network[][] {{brian}, {net1, net2}});
-    	System.out.println(Arrays.toString(sg.calculate(new double[] {
-    			1, 2, 3, 4, 5, 6, 7, 8, 9, 10})));
+    	sg.saveNetworkGroup("C:\\Users\\Home-Lucas\\Documents\\Saves\\NeuralNetworks\\Groups\\smallGroup");
+    	smallGroup loaded = new smallGroup("C:\\Users\\Home-Lucas\\Documents\\Saves\\NeuralNetworks\\Groups\\smallGroup");
+    	System.out.println(Arrays.toString(loaded.calculate(new double[] {10, 9, 8, 7, 6, 5, 4, 3, 2, 1})));
     }
 
     private static void addPerfectExampleData(NN network) {
@@ -546,19 +551,20 @@ public class Network {
     }
     
     public int activationFunctionToInt() {
-    	if(this.ACTIVATION_FUNCTION.equals(new UnitStep())){
+    	String af = this.ACTIVATION_FUNCTION.toString().substring(0, this.ACTIVATION_FUNCTION.toString().indexOf("@"));
+    	if(af.equals(new UnitStep().toString().substring(0, new UnitStep().toString().indexOf("@")))){
     		return 0;
-    	}else if(this.ACTIVATION_FUNCTION.equals(new Signum())){
+    	}else if(af.equals(new Signum().toString().substring(0, new Signum().toString().indexOf("@")))){
     		return 1;
-    	}else if(this.ACTIVATION_FUNCTION.equals(new Sigmoid())){
+    	}else if(af.equals(new Sigmoid().toString().substring(0, new Sigmoid().toString().indexOf("@")))){
     		return 2;
-    	}else if(this.ACTIVATION_FUNCTION.equals(new HyperbolicTangent())){
+    	}else if(af.equals(new HyperbolicTangent().toString().substring(0, new HyperbolicTangent().toString().indexOf("@")))){
     		return 3;
-    	}else if(this.ACTIVATION_FUNCTION.equals(new JumpStep())){
+    	}else if(af.equals(new JumpStep().toString().substring(0, new JumpStep().toString().indexOf("@")))){
     		return 4;
-    	}else if(this.ACTIVATION_FUNCTION.equals(new JumpSignum())){
+    	}else if(af.equals(new JumpSignum().toString().substring(0, new JumpSignum().toString().indexOf("@")))){
     		return 5;
-    	}else if(this.ACTIVATION_FUNCTION.equals(new Rectifier())){
+    	}else if(af.equals(new Rectifier().toString().substring(0, new Rectifier().toString().indexOf("@")))){
     		return 6;
     	}else{ 
     		return 7;
