@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 public class Network {
 
-    public static final double LEARNING_RATE = 0.001;
+    public static final double LEARNING_RATE = 0.0001;
 
     public static final int ZERO_OR_ONE = 0;
     public static final int NEGATIVE_ONE_OR_ONE = 1;
@@ -366,8 +366,10 @@ public class Network {
     }
 
     public static void main(String[] args) {
-    	Network net = new Network(Network.ZERO_TO_ONE, 10.0, 2, 2, 1);
-    	System.out.println(Arrays.toString(net.calculate(new double[]{3,2})));
+    	NN nn = new NN(Network.ZERO_TO_ONE, 180.0, 2, 2, 1);
+    	Network.addPerfectExampleData(nn);
+    	nn.train(100000);
+    	
     }
 
     private static void addPerfectExampleData(NN network) {
