@@ -9,7 +9,6 @@ import trainSet.TrainSet;
 import java.util.Arrays;
 
 import genetics.Brain;
-import genetics.NetworkGroup;
 
 public class Network {
 
@@ -401,7 +400,8 @@ public class Network {
     	System.out.println(Arrays.toString(loaded.calculate(new double[] {10, 9, 8, 7, 6, 5, 4, 3, 2, 1})));
     }
 
-    private static void addPerfectExampleData(NN network) {
+    @SuppressWarnings("unused")
+	private static void addPerfectExampleData(NN network) {
         for(int degree = 5; degree <= 180; degree += 5){
             network.addData(new double[]{degree, 0}, new double[]{0});
         }
@@ -412,7 +412,8 @@ public class Network {
         }
     }
     
-    private static void addExampleData(NN network) {
+    @SuppressWarnings("unused")
+	private static void addExampleData(NN network) {
         network.addData(new double[]{0, 0}, new double[]{0});
         network.addData(new double[]{0, 0.2}, new double[]{0});
         network.addData(new double[]{0, 0.4}, new double[]{0});
