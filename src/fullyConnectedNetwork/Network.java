@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 public class Network {
 
-    public static final double LEARNING_RATE = 0.0001;
+    public static double LEARNING_RATE = 0.0001;
 
     public static final int ZERO_OR_ONE = 0;
     public static final int NEGATIVE_ONE_OR_ONE = 1;
@@ -35,13 +35,24 @@ public class Network {
     public final int OUTPUT_SIZE;
     public final int NETWORK_SIZE;
 
-    //public double[][][][] weightDataPoints;
-    //public double[][][] biasDataPoints;
-    //public double[][][][] weightDerivativePoints;
-    //public double[][][] biasDerivativePoints;
-    //public double[][][][] weightCoefficients;
-    //public double[][][] biasCoefficients;
+    public static void main(String[] args) {
+    	NN nn = new NN(Network.ZERO_TO_ONE, 180.0, 2, 2, 1);
+    	Network.addExampleData(nn);
+    	
+    	try {
+			nn.net = Network.loadNetwork("C:\\Users\\Lucas Brown\\Documents\\NetworkSaves\\NetSaves\\YAY!!!");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    	//nn.net = nn.net.jumpTrain(nn.net, nn.set, 3000, nn.set.size(), 10);	
+    	Network.LEARNING_RATE /= 100;
+    	nn.net.train(nn.set, 100000, nn.set.size(), 1000, "C:\\Users\\Lucas Brown\\Documents\\NetworkSaves\\NetSaves\\YAY!!!");
 
+    	nn.net.printResults(nn.set);
+    }
+    
     public Network(int ActivationFunction, int... NETWORK_LAYER_SIZES) {
     	switch (ActivationFunction) {
         case 0:
@@ -67,7 +78,6 @@ public class Network {
             break;
         default:
         	this.ACTIVATION_FUNCTION = null;
-        	break;
     	}
     	
         this.multiplier = 1;
@@ -93,11 +103,11 @@ public class Network {
 
             //this.biasDataPoints[i] = new double[this.NETWORK_LAYER_SIZES[i]][];
 
-            this.bias[i] = NetworkTools.createRandomArray(NETWORK_LAYER_SIZES[i],  -0.5, 0.7);
+            this.bias[i] = NetworkTools.createRandomArray(NETWORK_LAYER_SIZES[i],  -0.9, 0.9);
 
             if (i > 0) {
                 //this.weightDataPoints[i] = new double[this.NETWORK_LAYER_SIZES[i]][this.NETWORK_LAYER_SIZES[i - 1]][];
-                this.weights[i] = NetworkTools.createRandomArray(NETWORK_LAYER_SIZES[i], NETWORK_LAYER_SIZES[i - 1], -0.5, 0.7);
+                this.weights[i] = NetworkTools.createRandomArray(NETWORK_LAYER_SIZES[i], NETWORK_LAYER_SIZES[i - 1], -0.9, 0.9);
             }
         }
     }
@@ -134,7 +144,6 @@ public class Network {
             break;
         default:
         	this.ACTIVATION_FUNCTION = null;
-        	break;
     	}
         this.NETWORK_LAYER_SIZES = NETWORK_LAYER_SIZES;
         this.INPUT_SIZE = NETWORK_LAYER_SIZES[0];
@@ -158,11 +167,11 @@ public class Network {
 
             //this.biasDataPoints[i] = new double[this.NETWORK_LAYER_SIZES[i]][];
 
-            this.bias[i] = NetworkTools.createRandomArray(NETWORK_LAYER_SIZES[i],  -0.5, 0.7);
+            this.bias[i] = NetworkTools.createRandomArray(NETWORK_LAYER_SIZES[i],  -0.9, 0.9);
 
             if (i > 0) {
                 //this.weightDataPoints[i] = new double[this.NETWORK_LAYER_SIZES[i]][this.NETWORK_LAYER_SIZES[i - 1]][];
-                this.weights[i] = NetworkTools.createRandomArray(NETWORK_LAYER_SIZES[i], NETWORK_LAYER_SIZES[i - 1], -0.5, 0.7);
+                this.weights[i] = NetworkTools.createRandomArray(NETWORK_LAYER_SIZES[i], NETWORK_LAYER_SIZES[i - 1], -0.9, 0.9);
             }
         }
     }
@@ -188,7 +197,7 @@ public class Network {
                     sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
                 this.output[layer][neuron] = AF.activator(sum);
-                this.output_derivative[layer][neuron] = Math.exp(-sum) / Math.pow((1 + Math.exp(-sum)), 2);
+                this.output_derivative[layer][neuron] = AF.derivative(sum);
             }
         }
     }
@@ -199,10 +208,10 @@ public class Network {
         }
         for (int i = 0; i < loops; i++) {
             TrainSet batch = set.extractBatch(batch_size);
-            double mse = MSE(batch);
             for (int b = 0; b < batch_size; b++) {
                 this.train(batch.getInput(b), batch.getOutput(b), Network.LEARNING_RATE);
             }
+            double mse = MSE(batch);
             System.out.println(mse);
         }
     }
@@ -241,6 +250,33 @@ public class Network {
         updateWeights(eta);
     }
 
+    public Network jumpTrain(Network net, TrainSet set, int loops, int batch_size, int jumpRate) {
+        if (set.INPUT_SIZE != this.INPUT_SIZE || set.OUTPUT_SIZE != this.OUTPUT_SIZE) {
+            return null;
+        }
+        Network bestNet = Network.copy(net);
+        double bestMSE = Double.MAX_VALUE;
+        Network nextNet;
+        for (int jump = 0; jump < jumpRate; jump++) {
+        	nextNet = new Network(net.activationFunctionToInt(), net.multiplier, net.NETWORK_LAYER_SIZES);;
+        	for(int i = 0; i < loops; i++) {
+        		TrainSet batch = set.extractBatch(batch_size);
+        		double learningRate = Network.LEARNING_RATE; //((jumpRate / (jump + 1)) * Network.LEARNING_RATE) / jumpRate;
+        		for (int b = 0; b < batch_size; b++) {
+        			nextNet.train(batch.getInput(b), batch.getOutput(b), learningRate);
+        		}
+        		double mse = nextNet.MSE(batch);
+        		if(mse < bestMSE) {
+        			bestNet = Network.copy(nextNet);
+        			bestMSE = mse;
+        		}
+        		
+        		System.out.println(mse + "\n " + bestMSE);
+        	}
+        }
+        return bestNet;
+    }
+    
     public double MSE(double[] input, double[] target) {
         if (input.length != this.INPUT_SIZE || target.length != this.OUTPUT_SIZE) {
             return 0;
@@ -250,7 +286,7 @@ public class Network {
         for (int i = 0; i < target.length; i++) {
             v += (target[i] - this.output[this.NETWORK_SIZE - 1][i]) * (target[i] - this.output[NETWORK_SIZE - 1][i]);
         }
-        return v / (2d * target.length * this.multiplier * this.multiplier);
+        return v / (2d * target.length);
     }
 
     public double MSE(TrainSet set) {
@@ -264,7 +300,7 @@ public class Network {
     public void backpropError(double[] target) {
         for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[this.NETWORK_SIZE - 1]; neuron++) {
         	this.error_signal[this.NETWORK_SIZE - 1][neuron] = ((this.output[this.NETWORK_SIZE - 1][neuron] - target[neuron])
-                    * this.output_derivative[this.NETWORK_SIZE - 1][neuron]) / this.multiplier;
+                    * this.output_derivative[this.NETWORK_SIZE - 1][neuron]);
         }
         for (int layer = this.NETWORK_SIZE - 2; layer > 0; layer--) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
@@ -295,8 +331,15 @@ public class Network {
 
 		@Override
 		public double activator(double x) {
-			return 1 / (1 + Math.exp(-x));
+			return 1.0 / (1.0 + Math.exp(-x));
 		}
+
+		@Override
+		public double derivative(double x) {
+			double i = this.activator(x);
+			return (i) * (1.0 - i);
+		}
+		
     }
     
     public class HyperbolicTangent extends ActivationFunction{
@@ -304,6 +347,12 @@ public class Network {
 		@Override
 		public double activator(double x) {
 			return Math.tanh(x);
+		}
+
+		@Override
+		public double derivative(double x) {
+			// TODO Auto-generated method stub
+			return 0;
 		}
     }
     
@@ -317,6 +366,12 @@ public class Network {
 	            return 0;
 	        }
 		}
+
+		@Override
+		public double derivative(double x) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
     }
 
     public class Signum extends ActivationFunction{
@@ -329,6 +384,12 @@ public class Network {
 	        	return -1;
 	        }
 		}
+
+		@Override
+		public double derivative(double x) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
     }
     
     public class JumpStep extends ActivationFunction{
@@ -340,6 +401,12 @@ public class Network {
 	        } else {
 	            return 0;
 	        } 
+		}
+
+		@Override
+		public double derivative(double x) {
+			// TODO Auto-generated method stub
+			return 0;
 		}
     }
     
@@ -355,6 +422,12 @@ public class Network {
 	            return Math.round(x);
 	        }
 		}
+
+		@Override
+		public double derivative(double x) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
     }
 
     public class Rectifier extends ActivationFunction{
@@ -363,24 +436,21 @@ public class Network {
 		public double activator(double x) {
 			return Math.log(1 + Math.exp(x));
 		}
-    }
 
-    public static void main(String[] args) {
-    	NN nn = new NN(Network.ZERO_TO_ONE, 180.0, 2, 2, 1);
-    	Network.addPerfectExampleData(nn);
-    	nn.train(100000);
-    	
+		@Override
+		public double derivative(double x) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
     }
 
     private static void addPerfectExampleData(NN network) {
         for(int degree = 5; degree <= 180; degree += 5){
-            network.addData(new double[]{degree, 0}, new double[]{0});
-        }
-        for(int degree = 5; degree <= 180; degree += 5){
-            for(double speed = .1; speed <= 1; speed += 0.1){
-                network.addData(new double[]{degree, speed}, new double[]{network.net.multiplier * ((degree - degree / (90d * speed)) / 180)});
+            for(double speed = 0.1; speed <= 1; speed += 0.1){
+                network.addData(new double[]{degree, speed}, new double[]{ degree - degree * speed * 0.05});
             }
         }
+        
     }
     
     private static void addExampleData(NN network) {
@@ -511,31 +581,39 @@ public class Network {
     
     public static Network copy(Network network) {
         Network coppied = new Network(network.activationFunctionToInt(), network.multiplier, network.NETWORK_LAYER_SIZES);
-        for (int i = 0; i < network.bias.length; i++) {
-            System.arraycopy(network.bias[i], 0, coppied.bias[i], 0, network.bias[i].length);
-        }
-        for (int i = 1; i < network.weights.length; i++) {
-            for (int j = 0; j < network.weights[i].length; j++) {
-                System.arraycopy(network.weights[i][j], 0, coppied.weights[i][j], 0, network.weights[i][j].length);
-            }
+        
+        for(int layer = 1; layer < network.NETWORK_SIZE; layer++) {
+        	for(int neuron = 0; neuron < network.NETWORK_LAYER_SIZES[layer]; neuron++) {
+        		coppied.bias[layer][neuron] = network.bias[layer][neuron];
+        		for(int prevNeuron = 0; prevNeuron < network.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
+        			coppied.weights[layer][neuron][prevNeuron] = network.weights[layer][neuron][prevNeuron];
+        		}
+        	}
         }
         return coppied;
     }
     
+    public void printResults(TrainSet set) {
+    	for(int i = 0; i < set.size(); i++) {
+    		System.out.println( Arrays.toString(set.getInput(i)) + " >--< " + Arrays.toString(this.calculate(set.getInput(i))) + 
+    		" --> " +  Arrays.toString(set.getOutput(i)) );
+    	}
+    }
+    
     public int activationFunctionToInt() {
-    	if(this.ACTIVATION_FUNCTION.equals(new UnitStep())){
+    	if(this.ACTIVATION_FUNCTION instanceof UnitStep){
     		return 0;
-    	}else if(this.ACTIVATION_FUNCTION.equals(new Signum())){
+    	}else if(this.ACTIVATION_FUNCTION instanceof Signum){
     		return 1;
-    	}else if(this.ACTIVATION_FUNCTION.equals(new Sigmoid())){
+    	}else if(this.ACTIVATION_FUNCTION instanceof Sigmoid){
     		return 2;
-    	}else if(this.ACTIVATION_FUNCTION.equals(new HyperbolicTangent())){
+    	}else if(this.ACTIVATION_FUNCTION instanceof HyperbolicTangent){
     		return 3;
-    	}else if(this.ACTIVATION_FUNCTION.equals(new JumpStep())){
+    	}else if(this.ACTIVATION_FUNCTION instanceof JumpStep){
     		return 4;
-    	}else if(this.ACTIVATION_FUNCTION.equals(new JumpSignum())){
+    	}else if(this.ACTIVATION_FUNCTION instanceof JumpSignum){
     		return 5;
-    	}else if(this.ACTIVATION_FUNCTION.equals(new Rectifier())){
+    	}else if(this.ACTIVATION_FUNCTION instanceof Rectifier){
     		return 6;
     	}else{ 
     		return 7;
