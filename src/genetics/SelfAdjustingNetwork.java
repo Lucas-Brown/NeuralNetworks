@@ -15,14 +15,14 @@ public class SelfAdjustingNetwork extends GeneticNetwork{ // uses the output of 
 	protected int adjustingNeurons, finalLayerAdjustingNeurons;
 	protected double[][] neuronMultiplier; 
 	
-	public SelfAdjustingNetwork(int ActivationFunction, int adjustingNeurons, double multiplier, int... NETWORK_LAYER_SIZES) {
+	public SelfAdjustingNetwork(ActivationFunction ActivationFunction, int adjustingNeurons, double multiplier, int... NETWORK_LAYER_SIZES) {
 		super(ActivationFunction, multiplier, SelfAdjustingNetwork.adjustLayers(adjustingNeurons, NETWORK_LAYER_SIZES));
 		this.adjustingNeurons = adjustingNeurons;
 		this.finalLayerAdjustingNeurons = 2 * this.adjustingNeurons * (this.NETWORK_LAYER_SIZES.length - 2);
 		this.neuronMultiplier = NetworkTools.createRandomArray(this.NETWORK_SIZE - 1, this.adjustingNeurons, -1, 1);
 	} 
 	
-	public SelfAdjustingNetwork(int ActivationFunction, int adjustingNeurons, int... NETWORK_LAYER_SIZES) {
+	public SelfAdjustingNetwork(ActivationFunction ActivationFunction, int adjustingNeurons, int... NETWORK_LAYER_SIZES) {
 		super(ActivationFunction, SelfAdjustingNetwork.adjustLayers(adjustingNeurons, NETWORK_LAYER_SIZES));
 		this.adjustingNeurons = adjustingNeurons;
 		this.finalLayerAdjustingNeurons = 2 * this.adjustingNeurons * (this.NETWORK_LAYER_SIZES.length - 2);
@@ -152,7 +152,7 @@ public class SelfAdjustingNetwork extends GeneticNetwork{ // uses the output of 
         Node root = p.getContent();
         Node netw = new Node("Network");
         Node ly = new Node("Layers");
-        netw.addAttribute(new Attribute("Activation Function", Integer.toString(this.activationFunctionToInt())));
+        netw.addAttribute(new Attribute("Activation Function", Integer.toString(this.ACTIVATION_FUNCTION.activationNum)));
         netw.addAttribute(new Attribute("Adjustment", Integer.toString(this.adjustingNeurons)));
         netw.addAttribute(new Attribute("Multiplier", Double.toString(this.multiplier)));
         netw.addAttribute(new Attribute("fitness", Double.toString(this.fitness)));
@@ -193,7 +193,7 @@ public class SelfAdjustingNetwork extends GeneticNetwork{ // uses the output of 
         double Fitness = Double.parseDouble(p.getValue(new String[]{"Network"}, "fitness"));
         String sizes = p.getValue(new String[]{"Network"}, "sizes");
         int[] si = ParserTools.parseIntArray(sizes);
-        SelfAdjustingNetwork ne = new SelfAdjustingNetwork(af, ad, Multiplyer, reverseAdjustLayers(ad, si));
+        SelfAdjustingNetwork ne = new SelfAdjustingNetwork(ActivationFunction.intToActivationFunction(af), ad, Multiplyer, reverseAdjustLayers(ad, si));
         ne.fitness = Fitness;
         
         for (int i = 1; i < ne.NETWORK_SIZE; i++) {

@@ -20,7 +20,7 @@ public class Brain extends SelfAdjustingNetwork{ // this class is a compound of 
     private int memoryLength, memoryWidth;
 	private double memory[][];
 	
-	public Brain(int ActivationFunction, int adjustingNeurons, int memoryLength, int memoryWidth, double multiplier, int... NETWORK_LAYER_SIZES) {
+	public Brain(ActivationFunction ActivationFunction, int adjustingNeurons, int memoryLength, int memoryWidth, double multiplier, int... NETWORK_LAYER_SIZES) {
 		super(ActivationFunction, adjustingNeurons, multiplier, GeneticMemoryNetwork.adjustLayers(memoryLength, memoryWidth, NETWORK_LAYER_SIZES));
         this.memoryLength = memoryLength;
         this.memoryWidth = memoryWidth;
@@ -30,7 +30,7 @@ public class Brain extends SelfAdjustingNetwork{ // this class is a compound of 
         }
 	}
 	
-	public Brain(int ActivationFunction, int adjustingNeurons, int memoryLength, int memoryWidth, int... NETWORK_LAYER_SIZES) {
+	public Brain(ActivationFunction ActivationFunction, int adjustingNeurons, int memoryLength, int memoryWidth, int... NETWORK_LAYER_SIZES) {
 		super(ActivationFunction, adjustingNeurons, GeneticMemoryNetwork.adjustLayers(memoryLength, memoryWidth, NETWORK_LAYER_SIZES));
         this.memoryLength = memoryLength;
         this.memoryWidth = memoryWidth;
@@ -192,7 +192,7 @@ public class Brain extends SelfAdjustingNetwork{ // this class is a compound of 
         Node root = p.getContent();
         Node netw = new Node("Network");
         Node ly = new Node("Layers");
-        netw.addAttribute(new Attribute("Activation Function", Integer.toString(this.activationFunctionToInt())));
+        netw.addAttribute(new Attribute("Activation Function", Integer.toString(this.ACTIVATION_FUNCTION.activationNum)));
         netw.addAttribute(new Attribute("Adjustment", Integer.toString(this.adjustingNeurons)));
         netw.addAttribute(new Attribute("length", Integer.toString(this.memoryLength)));
         netw.addAttribute(new Attribute("width", Integer.toString(this.memoryWidth)));
@@ -237,7 +237,7 @@ public class Brain extends SelfAdjustingNetwork{ // this class is a compound of 
         double Fitness = Double.parseDouble(p.getValue(new String[]{"Network"}, "fitness"));
         String sizes = p.getValue(new String[]{"Network"}, "sizes");
         int[] si = ParserTools.parseIntArray(sizes);
-        Brain ne = new Brain(af, ad, length, width, Multiplyer, reverseAdjustLayers(ad, si));
+        Brain ne = new Brain(ActivationFunction.intToActivationFunction(af), ad, length, width, Multiplyer, reverseAdjustLayers(ad, si));
         ne.fitness = Fitness;
         
         for (int i = 1; i < ne.NETWORK_SIZE; i++) {

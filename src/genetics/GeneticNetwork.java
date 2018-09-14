@@ -2,6 +2,7 @@ package genetics;
 
 import java.util.Arrays;
 
+import fullyConnectedNetwork.ActivationFunction;
 import fullyConnectedNetwork.Network;
 import parser.Attribute;
 import parser.Node;
@@ -12,12 +13,12 @@ public class GeneticNetwork extends Network {
 
 	double fitness;
 	
-	public GeneticNetwork(int ActivationFunction, double multiplier, int... NETWORK_LAYER_SIZES) {
+	public GeneticNetwork(ActivationFunction ActivationFunction, double multiplier, int... NETWORK_LAYER_SIZES) {
 		super(ActivationFunction, multiplier, NETWORK_LAYER_SIZES);
 		this.fitness = 0;
 	}
 	
-	public GeneticNetwork(int ActivationFunction, int... NETWORK_LAYER_SIZES) {
+	public GeneticNetwork(ActivationFunction ActivationFunction, int... NETWORK_LAYER_SIZES) {
 		super(ActivationFunction, NETWORK_LAYER_SIZES);
 		this.fitness = 0;
 	}
@@ -29,7 +30,7 @@ public class GeneticNetwork extends Network {
         Node root = p.getContent();
         Node netw = new Node("Network");
         Node ly = new Node("Layers");
-        netw.addAttribute(new Attribute("Activation Function", Integer.toString(this.activationFunctionToInt())));
+        netw.addAttribute(new Attribute("Activation Function", Integer.toString(this.ACTIVATION_FUNCTION.activationNum)));
         netw.addAttribute(new Attribute("Multiplier", Double.toString(this.multiplier)));
         netw.addAttribute(new Attribute("fitness", Double.toString(this.fitness)));
         netw.addAttribute(new Attribute("sizes", Arrays.toString(this.NETWORK_LAYER_SIZES)));
@@ -68,7 +69,7 @@ public class GeneticNetwork extends Network {
         double Fitness = Double.parseDouble(p.getValue(new String[]{"Network"}, "fitness"));
         String sizes = p.getValue(new String[]{"Network"}, "sizes");
         int[] si = ParserTools.parseIntArray(sizes);
-        GeneticNetwork ne = new GeneticNetwork(af, Multiplyer, si);
+        GeneticNetwork ne = new GeneticNetwork(ActivationFunction.intToActivationFunction(af), Multiplyer, si);
         ne.fitness = Fitness;
         
         for (int i = 1; i < ne.NETWORK_SIZE; i++) {

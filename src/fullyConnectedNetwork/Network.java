@@ -12,13 +12,7 @@ public class Network {
 
     public static double LEARNING_RATE = 0.0001;
 
-    public static final int ZERO_OR_ONE = 0;
-    public static final int NEGATIVE_ONE_OR_ONE = 1;
-    public static final int ZERO_TO_ONE = 2;
-    public static final int NEGATIVE_ONE_TO_ONE = 3;
-    public static final int ZERO_JUMP_X = 4;
-    public static final int NEGATIVE_X_JUMP_X = 5;
-    public static final int RECTIFIER = 6; // 0 - infinity
+    public static final int ZERO_TO_ONE = 0;
 
     public final ActivationFunction ACTIVATION_FUNCTION;
     public final double multiplier;
@@ -36,49 +30,10 @@ public class Network {
     public final int NETWORK_SIZE;
 
     public static void main(String[] args) {
-    	NN nn = new NN(Network.ZERO_TO_ONE, 180.0, 2, 2, 1);
-    	Network.addExampleData(nn);
-    	
-    	try {
-			nn.net = Network.loadNetwork("C:\\Users\\Lucas Brown\\Documents\\NetworkSaves\\NetSaves\\YAY!!!");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	
-    	//nn.net = nn.net.jumpTrain(nn.net, nn.set, 3000, nn.set.size(), 10);	
-    	Network.LEARNING_RATE /= 100;
-    	nn.net.train(nn.set, 100000, nn.set.size(), 1000, "C:\\Users\\Lucas Brown\\Documents\\NetworkSaves\\NetSaves\\YAY!!!");
-
-    	nn.net.printResults(nn.set);
     }
     
-    public Network(int ActivationFunction, int... NETWORK_LAYER_SIZES) {
-    	switch (ActivationFunction) {
-        case 0:
-        	this.ACTIVATION_FUNCTION = new UnitStep();
-            break;
-        case 1:
-        	this.ACTIVATION_FUNCTION = new Signum();
-            break;
-        case 2:
-        	this.ACTIVATION_FUNCTION = new Sigmoid();
-            break;
-        case 3:
-        	this.ACTIVATION_FUNCTION = new HyperbolicTangent();
-            break;
-        case 4:
-        	this.ACTIVATION_FUNCTION = new JumpStep();
-            break;
-        case 5:
-        	this.ACTIVATION_FUNCTION = new JumpSignum();
-            break;
-        case 6:
-        	this.ACTIVATION_FUNCTION = new Rectifier();
-            break;
-        default:
-        	this.ACTIVATION_FUNCTION = null;
-    	}
+    public Network(ActivationFunction ActivationFunction, int... NETWORK_LAYER_SIZES) {
+        this.ACTIVATION_FUNCTION = ActivationFunction;
     	
         this.multiplier = 1;
         this.NETWORK_LAYER_SIZES = NETWORK_LAYER_SIZES;
@@ -112,39 +67,15 @@ public class Network {
         }
     }
 
-    public Network(int ActivationFunction, double multiplier, int... NETWORK_LAYER_SIZES) {
+    public Network(ActivationFunction ActivationFunction, double multiplier, int... NETWORK_LAYER_SIZES) {
     	if(multiplier <= 0) {
     		System.out.println("multiplier cannot be less than or equal to zero");
     		this.multiplier = 1;
     	} else {
     		this.multiplier = multiplier;
     	}
-
-    	switch (ActivationFunction) {
-        case 0:
-        	this.ACTIVATION_FUNCTION = new UnitStep();
-            break;
-        case 1:
-        	this.ACTIVATION_FUNCTION = new Signum();
-            break;
-        case 2:
-        	this.ACTIVATION_FUNCTION = new Sigmoid();
-            break;
-        case 3:
-        	this.ACTIVATION_FUNCTION = new HyperbolicTangent();
-            break;
-        case 4:
-        	this.ACTIVATION_FUNCTION = new JumpStep();
-            break;
-        case 5:
-        	this.ACTIVATION_FUNCTION = new JumpSignum();
-            break;
-        case 6:
-        	this.ACTIVATION_FUNCTION = new Rectifier();
-            break;
-        default:
-        	this.ACTIVATION_FUNCTION = null;
-    	}
+        this.ACTIVATION_FUNCTION = ActivationFunction;
+        
         this.NETWORK_LAYER_SIZES = NETWORK_LAYER_SIZES;
         this.INPUT_SIZE = NETWORK_LAYER_SIZES[0];
         this.NETWORK_SIZE = NETWORK_LAYER_SIZES.length;
@@ -258,7 +189,7 @@ public class Network {
         double bestMSE = Double.MAX_VALUE;
         Network nextNet;
         for (int jump = 0; jump < jumpRate; jump++) {
-        	nextNet = new Network(net.activationFunctionToInt(), net.multiplier, net.NETWORK_LAYER_SIZES);;
+        	nextNet = new Network(net.ACTIVATION_FUNCTION, net.multiplier, net.NETWORK_LAYER_SIZES);;
         	for(int i = 0; i < loops; i++) {
         		TrainSet batch = set.extractBatch(batch_size);
         		double learningRate = Network.LEARNING_RATE; //((jumpRate / (jump + 1)) * Network.LEARNING_RATE) / jumpRate;
@@ -325,123 +256,6 @@ public class Network {
                 }
             }
         }
-    }
-
-    public class Sigmoid extends ActivationFunction{
-
-		@Override
-		public double activator(double x) {
-			return 1.0 / (1.0 + Math.exp(-x));
-		}
-
-		@Override
-		public double derivative(double x) {
-			double i = this.activator(x);
-			return (i) * (1.0 - i);
-		}
-		
-    }
-    
-    public class HyperbolicTangent extends ActivationFunction{
-
-		@Override
-		public double activator(double x) {
-			return Math.tanh(x);
-		}
-
-		@Override
-		public double derivative(double x) {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-    }
-    
-    public class UnitStep extends ActivationFunction{
-
-		@Override
-		public double activator(double x) {
-			if (x > 0.5) {
-	            return 1;
-	        } else {
-	            return 0;
-	        }
-		}
-
-		@Override
-		public double derivative(double x) {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-    }
-
-    public class Signum extends ActivationFunction{
-
-		@Override
-		public double activator(double x) {
-			if (x >= 0) {
-	            return 1;
-	        } else {
-	        	return -1;
-	        }
-		}
-
-		@Override
-		public double derivative(double x) {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-    }
-    
-    public class JumpStep extends ActivationFunction{
-
-		@Override
-		public double activator(double x) {
-			if (x > 0.5) {
-	            return 1;
-	        } else {
-	            return 0;
-	        } 
-		}
-
-		@Override
-		public double derivative(double x) {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-    }
-    
-    public class JumpSignum extends ActivationFunction{
-
-		@Override
-		public double activator(double x) {
-			if (x > 1) {
-	            return 1;
-	        } else if (x < -1) {
-	            return -1;
-	        } else {
-	            return Math.round(x);
-	        }
-		}
-
-		@Override
-		public double derivative(double x) {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-    }
-
-    public class Rectifier extends ActivationFunction{
-
-		@Override
-		public double activator(double x) {
-			return Math.log(1 + Math.exp(x));
-		}
-
-		@Override
-		public double derivative(double x) {
-			// TODO Auto-generated method stub
-			return 0;
-		}
     }
 
     private static void addPerfectExampleData(NN network) {
@@ -522,7 +336,7 @@ public class Network {
         Node root = p.getContent();
         Node netw = new Node("Network");
         Node ly = new Node("Layers");
-        netw.addAttribute(new Attribute("Activation Function", Integer.toString(this.activationFunctionToInt())));
+        netw.addAttribute(new Attribute("Activation Function", Integer.toString(this.ACTIVATION_FUNCTION.activationNum)));
         netw.addAttribute(new Attribute("Multiplier", Double.toString(this.multiplier)));
         netw.addAttribute(new Attribute("sizes", Arrays.toString(this.NETWORK_LAYER_SIZES)));
         netw.addChild(ly);
@@ -559,7 +373,7 @@ public class Network {
         double Multiplyer = Double.parseDouble(p.getValue(new String[]{"Network"}, "Multiplier"));
         String sizes = p.getValue(new String[]{"Network"}, "sizes");
         int[] si = ParserTools.parseIntArray(sizes);
-        Network ne = new Network(af, Multiplyer, si);
+        Network ne = new Network(ActivationFunction.intToActivationFunction(af), Multiplyer, si);
 
         for (int i = 1; i < ne.NETWORK_SIZE; i++) {
             String biases = p.getValue(new String[]{"Network", "Layers", new String(i + ""), "biases"}, "values");
@@ -580,7 +394,7 @@ public class Network {
     }
     
     public static Network copy(Network network) {
-        Network coppied = new Network(network.activationFunctionToInt(), network.multiplier, network.NETWORK_LAYER_SIZES);
+        Network coppied = new Network(network.ACTIVATION_FUNCTION, network.multiplier, network.NETWORK_LAYER_SIZES);
         
         for(int layer = 1; layer < network.NETWORK_SIZE; layer++) {
         	for(int neuron = 0; neuron < network.NETWORK_LAYER_SIZES[layer]; neuron++) {
@@ -599,24 +413,5 @@ public class Network {
     		" --> " +  Arrays.toString(set.getOutput(i)) );
     	}
     }
-    
-    public int activationFunctionToInt() {
-    	if(this.ACTIVATION_FUNCTION instanceof UnitStep){
-    		return 0;
-    	}else if(this.ACTIVATION_FUNCTION instanceof Signum){
-    		return 1;
-    	}else if(this.ACTIVATION_FUNCTION instanceof Sigmoid){
-    		return 2;
-    	}else if(this.ACTIVATION_FUNCTION instanceof HyperbolicTangent){
-    		return 3;
-    	}else if(this.ACTIVATION_FUNCTION instanceof JumpStep){
-    		return 4;
-    	}else if(this.ACTIVATION_FUNCTION instanceof JumpSignum){
-    		return 5;
-    	}else if(this.ACTIVATION_FUNCTION instanceof Rectifier){
-    		return 6;
-    	}else{ 
-    		return 7;
-    	} 
-    }
+
 }
