@@ -10,9 +10,7 @@ import java.util.Arrays;
 
 public class Network {
 
-    public static double LEARNING_RATE = 0.0001;
-
-    public static final int ZERO_TO_ONE = 0;
+    public static double LEARNING_RATE = 0.00003;
 
     public final ActivationFunction ACTIVATION_FUNCTION;
     public final double multiplier;
@@ -30,6 +28,10 @@ public class Network {
     public final int NETWORK_SIZE;
 
     public static void main(String[] args) {
+    	NN nn = new NN(new ActivationFunction.Sigmoid(), 180.0, 2, 2, 1);
+    	Network.addExampleData(nn);
+    	
+    	nn.net.jumpTrain(nn.net, nn.set, 100000, nn.set.size(), 3, 0.000005);
     }
     
     public Network(ActivationFunction ActivationFunction, int... NETWORK_LAYER_SIZES) {
@@ -181,18 +183,18 @@ public class Network {
         updateWeights(eta);
     }
 
-    public Network jumpTrain(Network net, TrainSet set, int loops, int batch_size, int jumpRate) {
+    public Network jumpTrain(Network net, TrainSet set, int loops, int batch_size, int jumpsNum, double endingLearningRate) {
         if (set.INPUT_SIZE != this.INPUT_SIZE || set.OUTPUT_SIZE != this.OUTPUT_SIZE) {
             return null;
         }
         Network bestNet = Network.copy(net);
         double bestMSE = Double.MAX_VALUE;
         Network nextNet;
-        for (int jump = 0; jump < jumpRate; jump++) {
+        for (int jump = 0; jump < jumpsNum; jump++) {
         	nextNet = new Network(net.ACTIVATION_FUNCTION, net.multiplier, net.NETWORK_LAYER_SIZES);;
         	for(int i = 0; i < loops; i++) {
         		TrainSet batch = set.extractBatch(batch_size);
-        		double learningRate = Network.LEARNING_RATE; //((jumpRate / (jump + 1)) * Network.LEARNING_RATE) / jumpRate;
+        		double learningRate = LearningRateScaling(Network.LEARNING_RATE, endingLearningRate, loops, i);
         		for (int b = 0; b < batch_size; b++) {
         			nextNet.train(batch.getInput(b), batch.getOutput(b), learningRate);
         		}
@@ -208,6 +210,13 @@ public class Network {
         return bestNet;
     }
     
+   	private double LearningRateScaling(double startRate, double endRate, int loops, int i) {
+   		double eExponent =  ( 5 * ( 2 * i - loops)) / loops ;
+   		return (startRate + Math.exp( eExponent ) * endRate) /
+   				(1 + Math.exp( eExponent ));
+    }
+    
+
     public double MSE(double[] input, double[] target) {
         if (input.length != this.INPUT_SIZE || target.length != this.OUTPUT_SIZE) {
             return 0;
