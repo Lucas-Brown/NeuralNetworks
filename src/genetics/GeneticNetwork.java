@@ -10,7 +10,7 @@ import parser.ParserTools;
 
 public class GeneticNetwork extends Network {
 
-	double fitness;
+	public double fitness;
 	
 	public GeneticNetwork(int ActivationFunction, double multiplier, int... NETWORK_LAYER_SIZES) {
 		super(ActivationFunction, multiplier, NETWORK_LAYER_SIZES);

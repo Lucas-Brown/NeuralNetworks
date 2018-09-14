@@ -10,11 +10,12 @@ import genetics.GeneticMemoryNetwork;
 import genetics.GeneticNetwork;
 import genetics.SelfAdjustingNetwork;
 
-public abstract class NetworkGroup {
+public abstract class NetworkGroup{
 	
 	public Network[][] group;
 	public final int[] NETWORK_LAYER_SIZES;
-	public double[] groupOutput;
+	public double groupFitness;
+	protected double[] groupOutput;
 	
 	public NetworkGroup(Network[][] networks) {
 		this.group = networks;

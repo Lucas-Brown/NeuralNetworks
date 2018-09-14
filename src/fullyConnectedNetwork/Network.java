@@ -400,7 +400,8 @@ public class Network {
     	System.out.println(Arrays.toString(loaded.calculate(new double[] {10, 9, 8, 7, 6, 5, 4, 3, 2, 1})));
     }
 
-    private static void addPerfectExampleData(NN network) {
+    @SuppressWarnings("unused")
+	private static void addPerfectExampleData(NN network) {
         for(int degree = 5; degree <= 180; degree += 5){
             network.addData(new double[]{degree, 0}, new double[]{0});
         }
@@ -411,7 +412,8 @@ public class Network {
         }
     }
     
-    private static void addExampleData(NN network) {
+    @SuppressWarnings("unused")
+	private static void addExampleData(NN network) {
         network.addData(new double[]{0, 0}, new double[]{0});
         network.addData(new double[]{0, 0.2}, new double[]{0});
         network.addData(new double[]{0, 0.4}, new double[]{0});
@@ -551,20 +553,19 @@ public class Network {
     }
     
     public int activationFunctionToInt() {
-    	String af = this.ACTIVATION_FUNCTION.toString().substring(0, this.ACTIVATION_FUNCTION.toString().indexOf("@"));
-    	if(af.equals(new UnitStep().toString().substring(0, new UnitStep().toString().indexOf("@")))){
+    	if(this.ACTIVATION_FUNCTION.getClass().equals(UnitStep.class)){
     		return 0;
-    	}else if(af.equals(new Signum().toString().substring(0, new Signum().toString().indexOf("@")))){
+    	}else if(this.ACTIVATION_FUNCTION.getClass().equals(Signum.class)){
     		return 1;
-    	}else if(af.equals(new Sigmoid().toString().substring(0, new Sigmoid().toString().indexOf("@")))){
+    	}else if(this.ACTIVATION_FUNCTION.getClass().equals(Sigmoid.class)){
     		return 2;
-    	}else if(af.equals(new HyperbolicTangent().toString().substring(0, new HyperbolicTangent().toString().indexOf("@")))){
+    	}else if(this.ACTIVATION_FUNCTION.getClass().equals(HyperbolicTangent.class)){
     		return 3;
-    	}else if(af.equals(new JumpStep().toString().substring(0, new JumpStep().toString().indexOf("@")))){
+    	}else if(this.ACTIVATION_FUNCTION.getClass().equals(JumpStep.class)){
     		return 4;
-    	}else if(af.equals(new JumpSignum().toString().substring(0, new JumpSignum().toString().indexOf("@")))){
+    	}else if(this.ACTIVATION_FUNCTION.getClass().equals(JumpSignum.class)){
     		return 5;
-    	}else if(af.equals(new Rectifier().toString().substring(0, new Rectifier().toString().indexOf("@")))){
+    	}else if(this.ACTIVATION_FUNCTION.getClass().equals(Rectifier.class)){
     		return 6;
     	}else{ 
     		return 7;
