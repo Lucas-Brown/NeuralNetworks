@@ -3,6 +3,7 @@ package fullyConnectedNetwork;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
+import java.util.Arrays;
 import java.util.Scanner;
 
 import genetics.Brain;
@@ -10,7 +11,7 @@ import genetics.GeneticMemoryNetwork;
 import genetics.GeneticNetwork;
 import genetics.SelfAdjustingNetwork;
 
-public abstract class NetworkGroup{
+public abstract class NetworkGroup implements Cloneable{
 	
 	public Network[][] group;
 	public final int[] NETWORK_LAYER_SIZES;
@@ -109,6 +110,44 @@ public abstract class NetworkGroup{
 			e.printStackTrace();
 		}
 		return Network.class;
+	}
+	
+	public boolean equals(NetworkGroup ng) {
+		if(!Arrays.equals(this.NETWORK_LAYER_SIZES, ng.NETWORK_LAYER_SIZES)) {
+			return false;
+		}
+		for(int i = 0; i < this.NETWORK_LAYER_SIZES.length; i++) {
+			for(int j = 0; j < this.NETWORK_LAYER_SIZES[i]; j++) {
+				if(!Arrays.equals(this.group[i][j].NETWORK_LAYER_SIZES, ng.group[i][j].NETWORK_LAYER_SIZES)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	public NetworkGroup cloneGroup() {
+		try {
+			return (NetworkGroup) this.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static NetworkGroup cloneAndRandomize(NetworkGroup netGroup) {
+		NetworkGroup newGroup = netGroup.cloneGroup();
+		for(Network[] layers: netGroup.group) {
+			for(Network net: layers) {
+				for (int i = 0; i < net.NETWORK_SIZE; i++) {
+					net.bias[i] = NetworkTools.createRandomArray(net.NETWORK_LAYER_SIZES[i],  -0.5, 0.7);
+					if (i > 0) {
+						net.weights[i] = NetworkTools.createRandomArray(net.NETWORK_LAYER_SIZES[i], net.NETWORK_LAYER_SIZES[i - 1], -0.5, 0.7);
+					}
+				}
+			}
+		}
+		return newGroup;
 	}
 	
 	abstract public double[] calculate(double... input);
