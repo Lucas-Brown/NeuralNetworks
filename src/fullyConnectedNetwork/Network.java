@@ -8,6 +8,8 @@ import trainSet.TrainSet;
 
 import java.util.Arrays;
 
+import genetics.Brain;
+
 public class Network {
 
     public static double LEARNING_RATE = 0.00003;
@@ -266,8 +268,9 @@ public class Network {
             }
         }
     }
-
-    private static void addPerfectExampleData(NN network) {
+    
+	@SuppressWarnings("unused")
+	private static void addPerfectExampleData(NN network) {
         for(int degree = 5; degree <= 180; degree += 5){
             for(double speed = 0.1; speed <= 1; speed += 0.1){
                 network.addData(new double[]{degree, speed}, new double[]{ degree - degree * speed * 0.05});
@@ -276,7 +279,8 @@ public class Network {
         
     }
     
-    private static void addExampleData(NN network) {
+    @SuppressWarnings("unused")
+	private static void addExampleData(NN network) {
         network.addData(new double[]{0, 0}, new double[]{0});
         network.addData(new double[]{0, 0.2}, new double[]{0});
         network.addData(new double[]{0, 0.4}, new double[]{0});
