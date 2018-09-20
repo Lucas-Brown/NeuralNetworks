@@ -12,7 +12,7 @@ import trainSet.TrainSet;
 
 public class SelfAdjustingNetwork extends GeneticNetwork{ // uses the output of a few neurons as the bias and additional multiplier of extra hidden layer neurons
 
-	protected int adjustingNeurons, finalLayerAdjustingNeurons;
+	public int adjustingNeurons, finalLayerAdjustingNeurons;
 	protected double[][] neuronMultiplier; 
 	
 	public SelfAdjustingNetwork(ActivationFunction ActivationFunction, int adjustingNeurons, double multiplier, int... NETWORK_LAYER_SIZES) {

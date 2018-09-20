@@ -17,7 +17,7 @@ public class Brain extends SelfAdjustingNetwork{ // this class is a compound of 
 	// 2) memory
 	// 3) adjusting
 	
-    private int memoryLength, memoryWidth;
+    public int memoryLength, memoryWidth;
 	private double memory[][];
 	
 	public Brain(ActivationFunction ActivationFunction, int adjustingNeurons, int memoryLength, int memoryWidth, double multiplier, int... NETWORK_LAYER_SIZES) {

@@ -11,22 +11,44 @@ import genetics.GeneticMemoryNetwork;
 import genetics.GeneticNetwork;
 import genetics.SelfAdjustingNetwork;
 
-public abstract class NetworkGroup implements Cloneable{
+public class NetworkGroup{
 	
 	public Network[][] group;
+	private Class<?>[][] c; 
 	public final int[] NETWORK_LAYER_SIZES;
-	public double groupFitness;
-	protected double[] groupOutput;
+	public Double groupFitness;
+	private final GroupCalculate GC;
 	
-	public NetworkGroup(Network[][] networks) {
+	public NetworkGroup(Network[][] networks, GroupCalculate GC) {
+		this.GC = GC;
 		this.group = networks;
 		this.NETWORK_LAYER_SIZES = new int[this.group.length];
 		for(int i = 0; i < this.NETWORK_LAYER_SIZES.length; i++) {
 			this.NETWORK_LAYER_SIZES[i] = this.group[i].length;
 		}
+		this.c = new Class[this.NETWORK_LAYER_SIZES.length][];
+		for(int i = 0; i < this.NETWORK_LAYER_SIZES.length; i++) {
+			this.c[i] = new Class[this.NETWORK_LAYER_SIZES[i]];
+			for(int net = 0; net < this.NETWORK_LAYER_SIZES[i]; net++) {
+				Network netCheck = this.group[i][net];
+				
+				if(netCheck instanceof Brain) {
+					this.c[i][net] = Brain.class;
+				}else if(netCheck instanceof SelfAdjustingNetwork) {
+					this.c[i][net] = SelfAdjustingNetwork.class;
+				}else if(netCheck instanceof GeneticMemoryNetwork) {
+					this.c[i][net] = GeneticMemoryNetwork.class;
+				}else if(netCheck instanceof GeneticNetwork) {
+					this.c[i][net] = GeneticNetwork.class;
+				}else if(netCheck instanceof Network) {
+					this.c[i][net] = Network.class;
+				}
+			}
+		}
 	}
 	
-	public NetworkGroup(String filePath) {
+	public NetworkGroup(String filePath, GroupCalculate GC) {
+		this.GC = GC;
 		Network[][] group;
 		
 		File folder = new File(filePath);
@@ -38,6 +60,7 @@ public abstract class NetworkGroup implements Cloneable{
 		});
 		group = new Network[folders.length][];
 		
+		this.c = new Class[group.length][];
 		for(int layer = 0; layer < group.length; layer++) {
 			String layerDir = filePath + "\\layer-" + (layer + 1);
 			
@@ -50,9 +73,11 @@ public abstract class NetworkGroup implements Cloneable{
 			});
 			group[layer] = new Network[files.length];
 			
+			this.c[layer] = new Class[group[layer].length];
 			for(int network = 0; network < group[layer].length; network++) {
 				String networkFilePath = layerDir + "\\network-" + (network + 1);
 				Class<?> c = NetworkGroup.networkType(networkFilePath);
+				this.c[layer][network] = c;
 				try {
 					if(c.equals(Network.class)) {
 						group[layer][network] = Network.loadNetwork(networkFilePath);
@@ -126,29 +151,36 @@ public abstract class NetworkGroup implements Cloneable{
 		return true;
 	}
 	
-	public NetworkGroup cloneGroup() {
-		try {
-			return (NetworkGroup) this.clone();
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-	
 	public static NetworkGroup cloneAndRandomize(NetworkGroup netGroup) {
-		NetworkGroup newGroup = netGroup.cloneGroup();
-		for(Network[] layers: netGroup.group) {
-			for(Network net: layers) {
-				for (int i = 0; i < net.NETWORK_SIZE; i++) {
-					net.bias[i] = NetworkTools.createRandomArray(net.NETWORK_LAYER_SIZES[i],  -0.5, 0.7);
-					if (i > 0) {
-						net.weights[i] = NetworkTools.createRandomArray(net.NETWORK_LAYER_SIZES[i], net.NETWORK_LAYER_SIZES[i - 1], -0.5, 0.7);
-					}
+		Network[][] newGroup = new Network[netGroup.group.length][];
+		
+		for(int i = 0; i < newGroup.length; i++) {
+			newGroup[i] = new Network[netGroup.NETWORK_LAYER_SIZES[i]];
+			for(int net = 0; net < newGroup[i].length; net++) {
+				
+				if(netGroup.c[i][net].equals(Network.class)) {
+					Network selectedNetwork = netGroup.group[i][net];
+					newGroup[i][net] = new Network(selectedNetwork.ACTIVATION_FUNCTION, selectedNetwork.multiplier, selectedNetwork.NETWORK_LAYER_SIZES);
+				}else if(netGroup.c[i][net].equals(GeneticNetwork.class)) {
+					GeneticNetwork network = (GeneticNetwork) netGroup.group[i][net];
+					newGroup[i][net] = new GeneticNetwork(network.ACTIVATION_FUNCTION, network.multiplier, network.NETWORK_LAYER_SIZES);
+				}else if(netGroup.c[i][net].equals(SelfAdjustingNetwork.class)) {
+					SelfAdjustingNetwork network = (SelfAdjustingNetwork) netGroup.group[i][net];
+					newGroup[i][net] = new SelfAdjustingNetwork(network.ACTIVATION_FUNCTION, network.adjustingNeurons, network.multiplier, network.NETWORK_LAYER_SIZES);
+				}else if(netGroup.c[i][net].equals(GeneticMemoryNetwork.class)) {
+					GeneticMemoryNetwork network = (GeneticMemoryNetwork) netGroup.group[i][net];
+					newGroup[i][net] = new GeneticMemoryNetwork(network.ACTIVATION_FUNCTION, network.memoryLength, network.memoryWidth, network.multiplier, network.NETWORK_LAYER_SIZES);
+				}else if(netGroup.c[i][net].equals(Brain.class)) {
+					Brain network = (Brain) netGroup.group[i][net];
+					newGroup[i][net] = new Brain(network.ACTIVATION_FUNCTION, network.adjustingNeurons, network.memoryLength, network.memoryWidth, network.multiplier, network.NETWORK_LAYER_SIZES);
 				}
+				
 			}
 		}
-		return newGroup;
+		return new NetworkGroup(newGroup, netGroup.GC.clone());
 	}
 	
-	abstract public double[] calculate(double... input);
+	public double[] calculate(double... input) {
+		return this.GC.calculate(this.group, input);
+	}
 }

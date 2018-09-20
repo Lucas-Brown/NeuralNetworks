@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Arrays;
 
 import fullyConnectedNetwork.ActivationFunction;
+import fullyConnectedNetwork.GroupCalculate;
 import fullyConnectedNetwork.ActivationFunction.Sigmoid;
 import fullyConnectedNetwork.Network;
 import fullyConnectedNetwork.NetworkGroup;
@@ -16,7 +17,7 @@ abstract public class Population {
     private final int[] NETWORK_LAYER_SIZES;
     private static final int TOP_NETWORKS_NUM = 5;
     private static final int DIVERSITY_RATING = 1; // how many new networks get added each generation
-    private static final double MUTATION_RATE = 0.0001; //max percent change from original value.
+    private static final double MUTATION_RATE = 0.1; //max percent change from original value.
     private static final boolean isHighestScoreBest = false;
     private static final String path = "C:\\Users\\Lucas Brown\\Documents\\NetworkSaves\\GeneticSaves\\";
 
@@ -26,7 +27,7 @@ abstract public class Population {
         this.population = new NetworkGroup[popSize];
         this.NETWORK_LAYER_SIZES = NETWORK_LAYER_SIZES;
         for (int i = 0; i < this.population.length; i++) {
-            this.population[i] = new SingleNetwork(new GeneticNetwork[][]{{new GeneticNetwork(af, mutiplier, this.NETWORK_LAYER_SIZES.clone())}}); // automatically randomly generates new and unique networks
+            this.population[i] = new NetworkGroup(new GeneticNetwork[][]{{new GeneticNetwork(af, mutiplier, this.NETWORK_LAYER_SIZES.clone())}}, new SingleNetworkClaculate()); // automatically randomly generates new and unique networks
         }
     }
     
@@ -36,7 +37,7 @@ abstract public class Population {
         this.population = new NetworkGroup[popSize];
         this.NETWORK_LAYER_SIZES = NETWORK_LAYER_SIZES;
         for (int i = 0; i < this.population.length; i++) {
-            this.population[i] = new SingleNetwork(new SelfAdjustingNetwork[][] {{new SelfAdjustingNetwork(af, this.adjustingNeurons, mutiplier, this.NETWORK_LAYER_SIZES.clone())}}); // automatically randomly generates new and unique networks
+            this.population[i] = new NetworkGroup(new SelfAdjustingNetwork[][] {{new SelfAdjustingNetwork(af, this.adjustingNeurons, mutiplier, this.NETWORK_LAYER_SIZES.clone())}}, new SingleNetworkClaculate()); // automatically randomly generates new and unique networks
         }
     }
     
@@ -47,7 +48,7 @@ abstract public class Population {
         this.population = new NetworkGroup[popSize];
         this.NETWORK_LAYER_SIZES = NETWORK_LAYER_SIZES;
         for (int i = 0; i < this.population.length; i++) {
-            this.population[i] =  new SingleNetwork(new GeneticMemoryNetwork[][] {{new GeneticMemoryNetwork(af, this.memLength, this.memWidth, mutiplier, this.NETWORK_LAYER_SIZES.clone())}}); // automatically randomly generates new and unique networks
+            this.population[i] =  new NetworkGroup(new GeneticMemoryNetwork[][] {{new GeneticMemoryNetwork(af, this.memLength, this.memWidth, mutiplier, this.NETWORK_LAYER_SIZES.clone())}}, new SingleNetworkClaculate()); // automatically randomly generates new and unique networks
         }
     }
 
@@ -58,19 +59,15 @@ abstract public class Population {
         this.population = new NetworkGroup[popSize];
         this.NETWORK_LAYER_SIZES = NETWORK_LAYER_SIZES;
         for (int i = 0; i < this.population.length; i++) {
-            this.population[i] = new SingleNetwork(new Brain[][] {{new Brain(af, this.adjustingNeurons, this.memLength, this.memWidth, mutiplier, this.NETWORK_LAYER_SIZES.clone())}}); // automatically randomly generates new and unique networks
+            this.population[i] = new NetworkGroup(new Brain[][] {{new Brain(af, this.adjustingNeurons, this.memLength, this.memWidth, mutiplier, this.NETWORK_LAYER_SIZES.clone())}}, new SingleNetworkClaculate()); // automatically randomly generates new and unique networks
         }
     }
     
-    class SingleNetwork extends NetworkGroup{
-		public SingleNetwork(Network[][] networks) {
-			super(networks);
-		}
+    private class SingleNetworkClaculate extends GroupCalculate{
 
 		@Override
-		public double[] calculate(double... input) {
-			this.groupOutput = this.group[0][0].calculate(input); // only network
-			return this.groupOutput;
+		public double[] calculate(Network[][] networkGroups, double... input) {
+			return networkGroups[0][0].calculate(input);
 		}
     	
     }
@@ -115,14 +112,9 @@ abstract public class Population {
     public NetworkGroup[] highestFitnessNetworks(int topX) {
     	NetworkGroup[] top = new NetworkGroup[topX];
     	
-    	class filler extends NetworkGroup{
-
-			public filler(Network[][] networks) {
-				super(networks);
-			}
-
+    	class filler extends GroupCalculate{
 			@Override
-			public double[] calculate(double... input) {
+			public double[] calculate(Network[][] networkGroups, double... input) {
 				return null;
 			}
     		
@@ -130,8 +122,8 @@ abstract public class Population {
     	
         if (Population.isHighestScoreBest) {
             for (int i = 0; i < top.length; i++) {
-                top[i] = new filler(new Network[][] {{}});
-                top[i].groupFitness = 0.0;
+                top[i] = new NetworkGroup(new Network[][] {{}}, new filler());
+                top[i].groupFitness = Double.NEGATIVE_INFINITY;
             }
             for (NetworkGroup thePopulation : this.population) {
                 int score;
@@ -150,8 +142,8 @@ abstract public class Population {
             }
         } else {
             for (int i = 0; i < top.length; i++) {
-                top[i] = new filler(new Network[][] {{}});
-                top[i].groupFitness = Double.MAX_VALUE;
+                top[i] = new NetworkGroup(new Network[][] {{}}, new filler());
+                top[i].groupFitness = Double.POSITIVE_INFINITY;
             }
             for (NetworkGroup thePopulation : this.population) {
                 int score;
@@ -183,7 +175,6 @@ abstract public class Population {
     	NetworkGroup[] nextGeneration = new NetworkGroup[this.population.length];
         System.arraycopy(bestNetworks, 0, nextGeneration, 0, bestNetworks.length);
         System.arraycopy(bestNetworks, 0, parents, 0, bestNetworks.length);
-    	
         
         
     	for(int i = bestNetworks.length; i < parents.length; i++) {
@@ -207,7 +198,7 @@ abstract public class Population {
         if (!parentA.equals(parentB)) {
             return null;
         }
-        NetworkGroup child = parentA.cloneGroup();
+        NetworkGroup child = NetworkGroup.cloneAndRandomize(parentA);
         for (int netArr = 0; netArr < child.group.length; netArr++) {
             for (int childNet = 0; childNet < child.group[netArr].length; childNet++) {
 

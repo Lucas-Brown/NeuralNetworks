@@ -12,7 +12,7 @@ import trainSet.TrainSet;
 
 public class GeneticMemoryNetwork extends GeneticNetwork {
 
-    private int memoryLength, memoryWidth;
+    public int memoryLength, memoryWidth;
 	private double memory[][];
     //the length represents how long the memory bank is and the width determines the number of memory neurons within each layer
 
