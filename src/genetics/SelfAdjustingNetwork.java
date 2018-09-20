@@ -115,7 +115,7 @@ public class SelfAdjustingNetwork extends GeneticNetwork{ // uses the output of 
         }
 	}
     
-    static int[] adjustLayers(int adjuster, int... networkLayers) {
+    public static int[] adjustLayers(int adjuster, int... networkLayers) {
         if (adjuster <= 0) {
             return networkLayers;
         } else {
@@ -130,7 +130,7 @@ public class SelfAdjustingNetwork extends GeneticNetwork{ // uses the output of 
         }
     }
     
-    static int[] reverseAdjustLayers(int adjuster, int... networkLayers) {
+    public static int[] reverseAdjustLayers(int adjuster, int... networkLayers) {
         if (adjuster <= 0) {
             return networkLayers;
         } else {

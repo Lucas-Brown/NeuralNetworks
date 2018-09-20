@@ -217,7 +217,6 @@ public class Network {
    		return (startRate + Math.exp( eExponent ) * endRate) /
    				(1 + Math.exp( eExponent ));
     }
-    
 
     public double MSE(double[] input, double[] target) {
         if (input.length != this.INPUT_SIZE || target.length != this.OUTPUT_SIZE) {

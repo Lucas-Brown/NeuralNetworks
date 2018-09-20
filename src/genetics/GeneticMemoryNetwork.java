@@ -108,7 +108,7 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
         }
     }
     
-    static int[] adjustLayers(int memoryLength, int memoryWidth, int... networkLayers) {
+    public static int[] adjustLayers(int memoryLength, int memoryWidth, int... networkLayers) {
         if (memoryLength <= 0 || memoryWidth <= 0) {
             return networkLayers;
         } else {
@@ -119,7 +119,7 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
         }
     }
     
-    static int[] reverseAdjustLayers(int memoryLength, int memoryWidth, int... networkLayers) {
+    public static int[] reverseAdjustLayers(int memoryLength, int memoryWidth, int... networkLayers) {
         if (memoryLength <= 0 || memoryWidth <= 0) {
             return networkLayers;
         } else {

@@ -17,7 +17,7 @@ public class NetworkGroup{
 	private Class<?>[][] c; 
 	public final int[] NETWORK_LAYER_SIZES;
 	public Double groupFitness;
-	private final GroupCalculate GC;
+	private GroupCalculate GC;
 	
 	public NetworkGroup(Network[][] networks, GroupCalculate GC) {
 		this.GC = GC;
@@ -160,19 +160,22 @@ public class NetworkGroup{
 				
 				if(netGroup.c[i][net].equals(Network.class)) {
 					Network selectedNetwork = netGroup.group[i][net];
-					newGroup[i][net] = new Network(selectedNetwork.ACTIVATION_FUNCTION, selectedNetwork.multiplier, selectedNetwork.NETWORK_LAYER_SIZES);
+					newGroup[i][net] = new Network(selectedNetwork.ACTIVATION_FUNCTION, selectedNetwork.multiplier, selectedNetwork.NETWORK_LAYER_SIZES.clone());
 				}else if(netGroup.c[i][net].equals(GeneticNetwork.class)) {
 					GeneticNetwork network = (GeneticNetwork) netGroup.group[i][net];
-					newGroup[i][net] = new GeneticNetwork(network.ACTIVATION_FUNCTION, network.multiplier, network.NETWORK_LAYER_SIZES);
+					newGroup[i][net] = new GeneticNetwork(network.ACTIVATION_FUNCTION, network.multiplier, network.NETWORK_LAYER_SIZES.clone());
 				}else if(netGroup.c[i][net].equals(SelfAdjustingNetwork.class)) {
 					SelfAdjustingNetwork network = (SelfAdjustingNetwork) netGroup.group[i][net];
-					newGroup[i][net] = new SelfAdjustingNetwork(network.ACTIVATION_FUNCTION, network.adjustingNeurons, network.multiplier, network.NETWORK_LAYER_SIZES);
+					newGroup[i][net] = new SelfAdjustingNetwork(network.ACTIVATION_FUNCTION, network.adjustingNeurons, network.multiplier, 
+							SelfAdjustingNetwork.reverseAdjustLayers(network.adjustingNeurons, network.NETWORK_LAYER_SIZES.clone()));
 				}else if(netGroup.c[i][net].equals(GeneticMemoryNetwork.class)) {
 					GeneticMemoryNetwork network = (GeneticMemoryNetwork) netGroup.group[i][net];
-					newGroup[i][net] = new GeneticMemoryNetwork(network.ACTIVATION_FUNCTION, network.memoryLength, network.memoryWidth, network.multiplier, network.NETWORK_LAYER_SIZES);
+					newGroup[i][net] = new GeneticMemoryNetwork(network.ACTIVATION_FUNCTION, network.memoryLength, network.memoryWidth, network.multiplier, 
+							GeneticMemoryNetwork.reverseAdjustLayers(network.memoryLength, network.memoryWidth, network.NETWORK_LAYER_SIZES.clone()));
 				}else if(netGroup.c[i][net].equals(Brain.class)) {
 					Brain network = (Brain) netGroup.group[i][net];
-					newGroup[i][net] = new Brain(network.ACTIVATION_FUNCTION, network.adjustingNeurons, network.memoryLength, network.memoryWidth, network.multiplier, network.NETWORK_LAYER_SIZES);
+					newGroup[i][net] = new Brain(network.ACTIVATION_FUNCTION, network.adjustingNeurons, network.memoryLength, network.memoryWidth, network.multiplier, 
+							Brain.reverseAdjustLayers(network.adjustingNeurons, network.memoryLength, network.memoryWidth, network.NETWORK_LAYER_SIZES.clone()));
 				}
 				
 			}
@@ -183,4 +186,13 @@ public class NetworkGroup{
 	public double[] calculate(double... input) {
 		return this.GC.calculate(this.group, input);
 	}
+
+	public double MSE(double[] input, double[] target) {
+        double[] output = this.calculate(input);
+        double v = 0;
+        for (int i = 0; i < target.length; i++) {
+            v += (target[i] - output[i]) * (target[i] - output[i]);
+        }
+        return v / (2d * target.length);
+    }
 }

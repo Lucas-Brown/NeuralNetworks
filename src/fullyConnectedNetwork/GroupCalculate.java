@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 
 public abstract class GroupCalculate implements Cloneable {
 
-	public abstract double[] calculate(Network[][] networkGroup, double... input);
+	public abstract double[] calculate(Network[][] group, double... input);
 	
 	@Override
     public GroupCalculate clone(){

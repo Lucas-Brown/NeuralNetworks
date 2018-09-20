@@ -145,7 +145,7 @@ public class Brain extends SelfAdjustingNetwork{ // this class is a compound of 
         }
 	}
     
-    private static int[] adjustLayers(int adjuster, int memoryLength, int memoryWidth, int... networkLayers) {
+    public static int[] adjustLayers(int adjuster, int memoryLength, int memoryWidth, int... networkLayers) {
         if (adjuster <= 0 && (memoryLength <= 0 || memoryWidth <= 0)) {
             return networkLayers;
         }else if(adjuster <= 0 && (memoryLength > 0 || memoryWidth > 0)) {
@@ -165,7 +165,7 @@ public class Brain extends SelfAdjustingNetwork{ // this class is a compound of 
         }
     }
     
-    static int[] reverseAdjustLayers(int adjuster, int memoryLength, int memoryWidth, int... networkLayers) {
+    public static int[] reverseAdjustLayers(int adjuster, int memoryLength, int memoryWidth, int... networkLayers) {
         if (adjuster <= 0 && (memoryLength <= 0 || memoryWidth <= 0)) {
             return networkLayers;
         }else if(adjuster <= 0 && (memoryLength > 0 || memoryWidth > 0)) {

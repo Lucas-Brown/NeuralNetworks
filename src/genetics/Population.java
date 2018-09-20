@@ -12,12 +12,9 @@ import fullyConnectedNetwork.NetworkGroup;
 abstract public class Population {
 
     public NetworkGroup[] population;
-    //public final double[] target = new double[]{1, 1, 0, 0};
-    //private final int memWidth, memLength, adjustingNeurons;
-    //private final int[] NETWORK_LAYER_SIZES;
     private static final int TOP_NETWORKS_NUM = 5;
     private static final int DIVERSITY_RATING = 1; // how many new networks get added each generation
-    private static final double MUTATION_RATE = 0.1; //max percent change from original value.
+    private static final double MUTATION_RATE = 1.0; //max percent change from original value.
     private static final boolean isHighestScoreBest = false;
     private static final String path = "C:\\Users\\Lucas Brown\\Documents\\NetworkSaves\\GeneticSaves\\";
 
@@ -52,8 +49,9 @@ abstract public class Population {
     
     public Population(int popSize, Network[][] group, GroupCalculate GC) {
         this.population = new NetworkGroup[popSize];
+        
         for (int i = 0; i < this.population.length; i++) {
-            this.population[i] = new NetworkGroup(group, new SingleNetworkClaculate()); // automatically randomly generates new and unique networks
+            this.population[i] = new NetworkGroup(group, GC); // automatically randomly generates new and unique networks
         }
     }
     
@@ -67,28 +65,54 @@ abstract public class Population {
     }
     
     public static void main(String[] args) {
+    	class dualNetwork extends GroupCalculate {
+
+			@Override
+			public double[] calculate(Network[][] group, double... input) {
+				double[] output = group[0][0].calculate(input);
+				return group[1][0].calculate(input); // use the output of the previous network as the input for the second one
+			}
+    		
+    	}
+    	
     	class population extends Population{
-			public population(int popSize, ActivationFunction af, double multiplier, int... NETWORK_LAYER_SIZES) {
-				super(popSize, af, multiplier, NETWORK_LAYER_SIZES);
+			public population(int popSize, Network[][] group, GroupCalculate GC) {
+				super(popSize, group, GC);
+			}
+			
+			public population(int popSize, ActivationFunction af, int adjustingNeurons, double mutiplier, int... NETWORK_LAYER_SIZES) {
+				super(popSize, af, adjustingNeurons, mutiplier, NETWORK_LAYER_SIZES);
+			}
+
+			public population(int popSize, ActivationFunction af, int memoryLength, int memoryWidth, double multiplier, int... NETWORK_LAYER_SIZES) {
+				super(popSize, af, memoryLength, memoryWidth, multiplier, NETWORK_LAYER_SIZES);
 			}
 
 			@Override
 			public void Fitness() {
 		    	for(NetworkGroup pop: this.population) {
-		    		pop.groupFitness = pop.calculate(new double[] {0 ,0})[0];
+		    		for(int i = 0; i < 10; i++) {
+		    			double[] input = new double[] {i, 1.0 / i, 0};
+		    			pop.groupFitness = pop.MSE(input, new double[] {7, 3});
+		    		}
 		    	}
 			}
         }
         
-        population pop = new population(72, new ActivationFunction.Sigmoid(), 10.0, 2, 2, 1); // initialize population
-        /*
+    	Network[][] group = new Network[][] {
+    		{new SelfAdjustingNetwork(new ActivationFunction.Sigmoid(), 2, 3, 3, 3)},
+    		{new GeneticMemoryNetwork(new ActivationFunction.Sigmoid(), 10, 1, 10.0, 3, 2, 2)}
+    	};
+        population pop = new population(72, group, new dualNetwork()); // initialize population
+        
         for (int i = 0; i < 5; i++) { // load current top 5 networks
         	try {
-        		pop.population[i] = GeneticMemoryNetwork.loadNetwork(path + i + ".txt");
+        		System.out.println(Population.path + i + "\\");
+        		pop.population[i] = new NetworkGroup(Population.path + i + "\\", new dualNetwork());
         	} catch (Exception ex) {
         		System.err.println(Arrays.toString(ex.getStackTrace()));
         	}
-        }*/
+        }
         
         int i = 0;
         while (i < 1000) { // repeat 
