@@ -13,8 +13,8 @@ abstract public class Population {
 
     public NetworkGroup[] population;
     //public final double[] target = new double[]{1, 1, 0, 0};
-    private final int memWidth, memLength, adjustingNeurons;
-    private final int[] NETWORK_LAYER_SIZES;
+    //private final int memWidth, memLength, adjustingNeurons;
+    //private final int[] NETWORK_LAYER_SIZES;
     private static final int TOP_NETWORKS_NUM = 5;
     private static final int DIVERSITY_RATING = 1; // how many new networks get added each generation
     private static final double MUTATION_RATE = 0.1; //max percent change from original value.
@@ -23,43 +23,37 @@ abstract public class Population {
 
     //we clone the network layer sizes in each constructor so that we get different instances of the array instead of multiple instances of the same array
     public Population(int popSize, ActivationFunction af, double mutiplier, int... NETWORK_LAYER_SIZES) {
-    	this.adjustingNeurons = this.memLength = this.memWidth = 0;
         this.population = new NetworkGroup[popSize];
-        this.NETWORK_LAYER_SIZES = NETWORK_LAYER_SIZES;
         for (int i = 0; i < this.population.length; i++) {
-            this.population[i] = new NetworkGroup(new GeneticNetwork[][]{{new GeneticNetwork(af, mutiplier, this.NETWORK_LAYER_SIZES.clone())}}, new SingleNetworkClaculate()); // automatically randomly generates new and unique networks
+            this.population[i] = new NetworkGroup(new GeneticNetwork[][]{{new GeneticNetwork(af, mutiplier, NETWORK_LAYER_SIZES.clone())}}, new SingleNetworkClaculate()); // automatically randomly generates new and unique networks
         }
     }
     
     public Population(int popSize, ActivationFunction af, int adjustingNeurons, double mutiplier, int... NETWORK_LAYER_SIZES) {
-    	this.memLength = this.memWidth = 0;
-    	this.adjustingNeurons = adjustingNeurons;
         this.population = new NetworkGroup[popSize];
-        this.NETWORK_LAYER_SIZES = NETWORK_LAYER_SIZES;
         for (int i = 0; i < this.population.length; i++) {
-            this.population[i] = new NetworkGroup(new SelfAdjustingNetwork[][] {{new SelfAdjustingNetwork(af, this.adjustingNeurons, mutiplier, this.NETWORK_LAYER_SIZES.clone())}}, new SingleNetworkClaculate()); // automatically randomly generates new and unique networks
+            this.population[i] = new NetworkGroup(new SelfAdjustingNetwork[][] {{new SelfAdjustingNetwork(af, adjustingNeurons, mutiplier, NETWORK_LAYER_SIZES.clone())}}, new SingleNetworkClaculate()); // automatically randomly generates new and unique networks
         }
     }
     
     public Population(int popSize, ActivationFunction af, int memoryLength, int memoryWidth, double mutiplier, int... NETWORK_LAYER_SIZES) {
-    	this.memWidth = memoryWidth;
-    	this.memLength = memoryLength;
-    	this.adjustingNeurons = 0;
         this.population = new NetworkGroup[popSize];
-        this.NETWORK_LAYER_SIZES = NETWORK_LAYER_SIZES;
         for (int i = 0; i < this.population.length; i++) {
-            this.population[i] =  new NetworkGroup(new GeneticMemoryNetwork[][] {{new GeneticMemoryNetwork(af, this.memLength, this.memWidth, mutiplier, this.NETWORK_LAYER_SIZES.clone())}}, new SingleNetworkClaculate()); // automatically randomly generates new and unique networks
+            this.population[i] =  new NetworkGroup(new GeneticMemoryNetwork[][] {{new GeneticMemoryNetwork(af, memoryLength, memoryWidth, mutiplier, NETWORK_LAYER_SIZES.clone())}}, new SingleNetworkClaculate()); // automatically randomly generates new and unique networks
         }
     }
 
     public Population(int popSize, ActivationFunction af, int adjustingNeurons, int memoryLength, int memoryWidth, double mutiplier, int... NETWORK_LAYER_SIZES) {
-    	this.memWidth = memoryWidth;
-    	this.memLength = memoryLength;
-    	this.adjustingNeurons = adjustingNeurons;
         this.population = new NetworkGroup[popSize];
-        this.NETWORK_LAYER_SIZES = NETWORK_LAYER_SIZES;
         for (int i = 0; i < this.population.length; i++) {
-            this.population[i] = new NetworkGroup(new Brain[][] {{new Brain(af, this.adjustingNeurons, this.memLength, this.memWidth, mutiplier, this.NETWORK_LAYER_SIZES.clone())}}, new SingleNetworkClaculate()); // automatically randomly generates new and unique networks
+            this.population[i] = new NetworkGroup(new Brain[][] {{new Brain(af, adjustingNeurons, memoryLength, memoryWidth, mutiplier, NETWORK_LAYER_SIZES.clone())}}, new SingleNetworkClaculate()); // automatically randomly generates new and unique networks
+        }
+    }
+    
+    public Population(int popSize, Network[][] group, GroupCalculate GC) {
+        this.population = new NetworkGroup[popSize];
+        for (int i = 0; i < this.population.length; i++) {
+            this.population[i] = new NetworkGroup(group, new SingleNetworkClaculate()); // automatically randomly generates new and unique networks
         }
     }
     
