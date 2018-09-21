@@ -182,7 +182,7 @@ public class SelfAdjustingNetwork extends GeneticNetwork{ // uses the output of 
 		}
     }
 
-    public static GeneticNetwork loadNetwork(String fileName) throws Exception {
+    public static SelfAdjustingNetwork loadNetwork(String fileName) throws Exception {
 
         Parser p = new Parser();
 
@@ -193,7 +193,7 @@ public class SelfAdjustingNetwork extends GeneticNetwork{ // uses the output of 
         double Fitness = Double.parseDouble(p.getValue(new String[]{"SelfAdjustingNetwork"}, "fitness"));
         String sizes = p.getValue(new String[]{"SelfAdjustingNetwork"}, "sizes");
         int[] si = ParserTools.parseIntArray(sizes);
-        SelfAdjustingNetwork ne = new SelfAdjustingNetwork(ActivationFunction.intToActivationFunction(af), ad, Multiplyer, reverseAdjustLayers(ad, si));
+        SelfAdjustingNetwork ne = new SelfAdjustingNetwork(ActivationFunction.intToActivationFunction(af), ad, Multiplyer, SelfAdjustingNetwork.reverseAdjustLayers(ad, si));
         ne.fitness = Fitness;
         
         for (int i = 1; i < ne.NETWORK_SIZE; i++) {

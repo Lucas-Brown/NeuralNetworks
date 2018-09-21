@@ -119,14 +119,14 @@ public class NetworkGroup{
 	
 	private static Class<?> networkType(String filePath){
 		Class<?>[] c = new Class<?>[] {GeneticNetwork.class, GeneticMemoryNetwork.class, SelfAdjustingNetwork.class, Brain.class}; 
+		String[] s = new String[] {"GeneticNetwork", "GeneticMemoryNetwork", "SelfAdjustingNetwork", "Brain"};
 		try {
 			for(int i = 0; i < c.length; i++) {
 				Scanner sc = new Scanner(new File(filePath));
-				String fullClassName = c[i].toString();
-				String className = fullClassName.substring(fullClassName.indexOf(".") + 1);
-				if (className == sc.findInLine(className)) {
+				if (s[i].equals(sc.findInLine(s[i]))) {
 					sc.close();
 					return c[i];
+
 				}else {
 					sc.close();
 				}

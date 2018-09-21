@@ -168,7 +168,7 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
 		}
     }
 
-    public static GeneticNetwork loadNetwork(String fileName) throws Exception {
+    public static GeneticMemoryNetwork loadNetwork(String fileName) throws Exception {
 
         Parser p = new Parser();
 

@@ -9,6 +9,7 @@ import trainSet.TrainSet;
 import java.util.Arrays;
 
 import genetics.Brain;
+import genetics.GeneticNetwork;
 
 public class Network {
 
@@ -30,10 +31,29 @@ public class Network {
     public final int NETWORK_SIZE;
 
     public static void main(String[] args) {
-    	NN nn = new NN(new ActivationFunction.Sigmoid(), 180.0, 2, 2, 1);
-    	Network.addExampleData(nn);
+    	class yes extends GroupCalculate{
+
+			@Override
+			public double[] calculate(Network[][] group, double... input) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+    		
+    	}
+    	NetworkGroup ng = new NetworkGroup(new Network[][] {
+    		{new Brain(new ActivationFunction.Sigmoid(), 2, 2, 2, 10.0, 2, 2, 1)},
+    		{new GeneticNetwork(new ActivationFunction.BinaryStep(), 1, 2, 1)}
+    	}, new yes());
     	
-    	nn.net.jumpTrain(nn.net, nn.set, 100000, nn.set.size(), 3, 0.000005);
+    	ng.saveNetworkGroup("C:\\Users\\Lucas Brown\\Documents\\NetworkSaves\\NetSaves");
+    	
+    	//NetworkGroup secondGroup = new NetworkGroup("C:\\Users\\Lucas Brown\\Documents\\NetworkSaves\\NetSaves", new yes());
+    	try {
+			Brain brian = Brain.loadNetwork("C:\\Users\\Lucas Brown\\Documents\\NetworkSaves\\NetSaves\\layer-1\\network-1");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
     public Network(ActivationFunction ActivationFunction, int... NETWORK_LAYER_SIZES) {
