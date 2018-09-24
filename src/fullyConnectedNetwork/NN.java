@@ -12,10 +12,10 @@ import java.util.logging.Logger;
 
 import trainSet.TrainSet;
 
-public class NN {
+public class NN { // a simplification of the Network and TrainSet classes
 
-    public Network net;
-    public TrainSet set;
+    private Network net;
+    private TrainSet set;
 
     public NN(ActivationFunction ActivationFunction, int... NETWORK_LAYER_SIZES) {
         this.net = new Network(ActivationFunction, NETWORK_LAYER_SIZES);
@@ -44,6 +44,10 @@ public class NN {
         net.train(set, loops, set.size(), saveInterval, file);
     }
     
+    public void jumpTrain(int loops, int jumpsNum, double endingLearningRate) { // for creating new networks based on the data set.
+    	this.net = this.net.jumpTrain(this.net, this.set, loops, this.set.size(), jumpsNum, endingLearningRate);
+    }
+    
     public void addData(double[] input, double[] expected){
         this.set.addData(input, expected);
     }
@@ -54,6 +58,15 @@ public class NN {
     
     public void saveNet(String path) throws Exception{
         this.net.saveNetwork(path);
+    }
+    
+    public void saveNN(String netPath, String setPath) {
+    	try {
+			this.saveNet(netPath);
+			this.saveSet(setPath);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
     
     public double[] calculate(double[] input){
@@ -85,4 +98,6 @@ public class NN {
     	pw.print(currentData + "\n");
     	pw.println(Arrays.toString(input) + ", " + Arrays.toString(expected) + ", \n");
     }
+
+    
 }

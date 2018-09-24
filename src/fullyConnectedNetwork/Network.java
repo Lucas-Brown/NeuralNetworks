@@ -175,18 +175,12 @@ public class Network {
         if (set.INPUT_SIZE != this.INPUT_SIZE || set.OUTPUT_SIZE != this.OUTPUT_SIZE) {
             return;
         }
-        for (int i = 0; i < loops; i++) {
-            TrainSet batch = set.extractBatch(batch_size);
-            for (int b = 0; b < batch_size; b++) {
-                this.train(batch.getInput(b), batch.getOutput(b), Network.LEARNING_RATE);
-            }
-            System.out.println(MSE(batch));
-            if (i % saveInterval == 0) {
-                try {
-                    saveNetwork(file);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        for (int i = 0; i < loops / saveInterval; i++) {
+            this.train(set, loops / saveInterval, batch_size);
+        	try {
+                saveNetwork(file);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         try {

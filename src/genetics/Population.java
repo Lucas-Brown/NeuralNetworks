@@ -70,7 +70,7 @@ abstract public class Population {
 			@Override
 			public double[] calculate(Network[][] group, double... input) {
 				double[] output = group[0][0].calculate(input);
-				return group[1][0].calculate(input); // use the output of the previous network as the input for the second one
+				return group[1][0].calculate(output); // use the output of the previous network as the input for the second one
 			}
     		
     	}
