@@ -99,5 +99,4 @@ public class NN { // a simplification of the Network and TrainSet classes
     	pw.println(Arrays.toString(input) + ", " + Arrays.toString(expected) + ", \n");
     }
 
-    
 }
