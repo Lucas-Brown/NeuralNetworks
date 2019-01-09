@@ -1,5 +1,7 @@
 package fullyConnectedNetwork;
 
+import java.util.Arrays;
+
 public class NetworkTools {
 
     public static double[] createArray(int size, double init_value){
@@ -91,6 +93,12 @@ public class NetworkTools {
             arr[i] = arr[i - 1];
         }
         arr[0] = value;
+    }
+
+    public static void fill(double[][] arr, double val){
+        for(double[] i: arr){
+            Arrays.fill(i, val);
+        }
     }
 
 }
