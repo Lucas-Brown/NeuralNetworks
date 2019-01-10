@@ -260,17 +260,23 @@ public class Network {
     }
 
     public void backpropError(double[] target) {
-        for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[this.NETWORK_SIZE - 1]; neuron++) {
-            this.error_signal[this.NETWORK_SIZE
-                    - 1][neuron] = ((this.output[this.NETWORK_SIZE - 1][neuron] - target[neuron])
-                            * this.output_derivative[this.NETWORK_SIZE - 1][neuron]);
+        //loop through the final output of the network
+        for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[this.NETWORK_SIZE - 1]; neuron++) { 
+            //set the error signal of the final layer to be the the difference between 
+            //the output and the target multiplied by the derivative of the activation function
+            this.error_signal[this.NETWORK_SIZE - 1][neuron] = 
+            ((this.output[this.NETWORK_SIZE - 1][neuron] - target[neuron])
+            * this.output_derivative[this.NETWORK_SIZE - 1][neuron]);
         }
+        //loop through all other layers repeating the same process 
         for (int layer = this.NETWORK_SIZE - 2; layer > 0; layer--) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
                 double sum = 0;
+                //take the sum of the weights multiplied by the error of the next layer
                 for (int nextNeuron = 0; nextNeuron < this.NETWORK_LAYER_SIZES[layer + 1]; nextNeuron++) {
                     sum += this.weights[layer + 1][nextNeuron][neuron] * this.error_signal[layer + 1][nextNeuron];
                 }
+                //multiply the sum by the derivative of the activation function
                 this.error_signal[layer][neuron] = sum * this.output_derivative[layer][neuron];
             }
         }
@@ -279,13 +285,27 @@ public class Network {
     public void updateWeights(double eta) {
         for (int layer = 1; layer < this.NETWORK_SIZE; layer++) {
             for (int neuron = 0; neuron < NETWORK_LAYER_SIZES[layer]; neuron++) {
-
+                // multiply the learning rate by the error signal and add the delta to the bias of the neuron
                 double delta = -eta * this.error_signal[layer][neuron];
                 this.bias[layer][neuron] += delta;
 
+                //use the delta to adjust the error of the weights
                 for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
                     this.weights[layer][neuron][prevNeuron] += delta * this.output[layer - 1][prevNeuron];
                 }
+            }
+        }
+    }
+
+    public void printWeightsAndBias(){
+        for(int layer = 0; layer < this.NETWORK_SIZE; layer++){
+            System.out.println("Layer: " + layer);
+            for(int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++){
+                System.out.print("Neuron " + neuron + ": Bias: " + this.bias[layer][neuron]);
+                if(layer > 0){
+                    System.out.print(", Weights: " + Arrays.toString(this.weights[layer][neuron]));
+                }
+                System.out.println();
             }
         }
     }

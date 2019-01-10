@@ -42,12 +42,13 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
 
     @Override
     public void train(TrainSet set, int loops, int batch_size, int saveInterval, String file) {
+        System.err.print("WARNING: Trainsets must be organized in a linear sequence to allow for training, failiure to do so will result in innacurate results");
 
     }
 
     @Override
     public void train(TrainSet set, int loops, int batch_size) {
-        System.err.print("WARNING: Trainsets must be organized in a linear sequence to allow for training, failiure to do so will result in innacurate results");
+        
     }
 
     @Override

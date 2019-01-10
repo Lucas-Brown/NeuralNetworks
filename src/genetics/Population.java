@@ -146,6 +146,7 @@ abstract public class Population {
         for(i = 0; i < 3; i++){
             System.out.println(Arrays.toString(pop.population[0].calculate(2)));
         }
+        pop.population[0].group[0][0].printWeightsAndBias();
     }
 
     abstract public void Fitness();
