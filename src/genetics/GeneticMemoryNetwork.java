@@ -40,19 +40,25 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
         }
     }
 
+    /*
+    * Training the memory network required a strictly different set of rules,
+    * to train a memory network we must take the full set of data, calculate 
+    * the outputs of the entire network, and work backwards to determine the 
+    * error since every neuron in the future can be affected by the past
+    */
     @Override
     public void train(TrainSet set, int loops, int batch_size, int saveInterval, String file) {
-        System.err.print("Cannot Train Memory Networks");
+        System.err.print("Not Supported Yet");
     }
 
     @Override
     public void train(TrainSet set, int loops, int batch_size) {
-        System.err.print("Cannot Train Memory Networks");
+
     }
 
     @Override
     public void train(double[] input, double[] target, double eta) {
-        System.err.print("Cannot Train Memory Networks");
+        System.err.print("Cannot train memory networks for a single set of data");
     }
 
     @Override
@@ -85,6 +91,11 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
         System.arraycopy(this.output[this.NETWORK_SIZE - 1], returned.length, memorySet, 0, memorySet.length);
         NetworkTools.push(this.memory, memorySet);
         return returned;
+    }
+
+    private double[][] calculate(double[][] input){
+
+        return null;
     }
     
     public void loops(ActivationFunction AF) {
