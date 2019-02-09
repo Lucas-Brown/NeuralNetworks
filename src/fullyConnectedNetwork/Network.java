@@ -9,6 +9,7 @@ import trainSet.TrainSet;
 import java.util.Arrays;
 
 import genetics.Brain;
+import genetics.GeneticMemoryNetwork;
 import genetics.GeneticNetwork;
 
 public class Network {
@@ -22,7 +23,7 @@ public class Network {
     public double[][][] weights;
     public double[][] bias;
 
-    private double[][] error_signal;
+    protected double[][] error_signal;
     protected double[][] output_derivative;
 
     public final int[] NETWORK_LAYER_SIZES;
@@ -31,29 +32,32 @@ public class Network {
     public final int NETWORK_SIZE;
 
     public static void main(String[] args) {
-    	class yes extends GroupCalculate{
+        GeneticMemoryNetwork net = new GeneticMemoryNetwork(new ActivationFunction.Sigmoid(), 10, 2, 2, 3, 3, 2);
+        
+        System.out.println(net.INPUT_SIZE + " " + net.OUTPUT_SIZE);
+        TrainSet set = new TrainSet(net.INPUT_SIZE, net.OUTPUT_SIZE - net.memoryWidth);
+        set.addData(new double[]{0, 1}, new double[]{0.5, 0.95});
+        set.addData(new double[]{0, 1}, new double[]{0.5, 0.9});
+        set.addData(new double[]{0, 1}, new double[]{0.5, 0.85});
+        set.addData(new double[]{0, 1}, new double[]{0.5, 0.8});
+        set.addData(new double[]{0, 1}, new double[]{0.5, 0.75});
+        set.addData(new double[]{0, 1}, new double[]{0.5, 0.7});
+        set.addData(new double[]{0, 1}, new double[]{0.5, 0.65});
+        set.addData(new double[]{0, 1}, new double[]{0.5, 0.6});
+        set.addData(new double[]{0, 1}, new double[]{0.5, 0.55});
+        set.addData(new double[]{0, 1}, new double[]{0.5, 0.5});
+        set.addData(new double[]{0, 1}, new double[]{0.5, 0.45});
+        set.addData(new double[]{0, 1}, new double[]{0.5, 0.4});
+        set.addData(new double[]{0, 1}, new double[]{0.5, 0.35});
+        set.addData(new double[]{0, 1}, new double[]{0.5, 0.3});
+        set.addData(new double[]{0, 1}, new double[]{0.5, 0.25});
+        set.addData(new double[]{0, 1}, new double[]{0.5, 0.2});
+        set.addData(new double[]{0, 1}, new double[]{0.5, 0.15});
+        set.addData(new double[]{0, 1}, new double[]{0.5, 0.10});
+        set.addData(new double[]{0, 1}, new double[]{0.5, 0.5});
 
-			@Override
-			public double[] calculate(Network[][] group, double... input) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-    		
-    	}
-    	NetworkGroup ng = new NetworkGroup(new Network[][] {
-    		{new Brain(new ActivationFunction.Sigmoid(), 2, 2, 2, 10.0, 2, 2, 1)},
-    		{new GeneticNetwork(new ActivationFunction.BinaryStep(), 1, 2, 1)}
-    	}, new yes());
-    	
-    	ng.saveNetworkGroup("C:\\Users\\Lucas Brown\\Documents\\NetworkSaves\\NetSaves");
-    	
-    	//NetworkGroup secondGroup = new NetworkGroup("C:\\Users\\Lucas Brown\\Documents\\NetworkSaves\\NetSaves", new yes());
-    	try {
-			Brain brian = Brain.loadNetwork("C:\\Users\\Lucas Brown\\Documents\\NetworkSaves\\NetSaves\\layer-1\\network-1");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        System.out.println(Arrays.toString(net.calculate(set.getInput(0))));
+        net.train(set, 1000, set.size());
     }
     
     public Network(ActivationFunction ActivationFunction, int... NETWORK_LAYER_SIZES) {
@@ -253,10 +257,15 @@ public class Network {
     }
 
     public void backpropError(double[] target) {
+        //create the error signal of the final layer based uppon the target 
         for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[this.NETWORK_SIZE - 1]; neuron++) {
         	this.error_signal[this.NETWORK_SIZE - 1][neuron] = ((this.output[this.NETWORK_SIZE - 1][neuron] - target[neuron])
                     * this.output_derivative[this.NETWORK_SIZE - 1][neuron]);
         }
+        /* 
+        * Use the error of the final layer to recursively trace through
+        * each layer to calculate the error signal of each neuron
+        */
         for (int layer = this.NETWORK_SIZE - 2; layer > 0; layer--) {
             for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[layer]; neuron++) {
                 double sum = 0;
