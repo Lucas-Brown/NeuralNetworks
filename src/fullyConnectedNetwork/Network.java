@@ -55,8 +55,7 @@ public class Network {
         set.addData(new double[]{0, 1}, new double[]{0.5, 0.15});
         set.addData(new double[]{0, 1}, new double[]{0.5, 0.10});
         set.addData(new double[]{0, 1}, new double[]{0.5, 0.5});
-
-        System.out.println(Arrays.toString(net.calculate(set.getInput(0))));
+        
         net.train(set, 1000, set.size());
     }
     

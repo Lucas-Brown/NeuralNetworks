@@ -65,8 +65,11 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
             outputs = new double[batch.size()][][];
             this.reference = new IntArrList[batch.size()][this.NETWORK_SIZE - 2]; //we do not include the input or the output layer
             this.memoryError = new double[batch.size()][][];
-            for(int j = 0; j < this.memoryError.length; j++){
+            for(int j = 0; j < batch.size(); j++){
                 this.memoryError[j] = this.memory.clone();
+                for(int k = 0; k < this.reference[j].length; k++){
+                    this.reference[j][k] = new IntArrList();
+                }
             }
             for (this.trainingSetNum = 0; this.trainingSetNum < batch.size(); this.trainingSetNum++) {
                 this.calculate(batch.getInput(this.trainingSetNum));
@@ -179,19 +182,20 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
                 for (int prevNeuron = 0; prevNeuron < this.NETWORK_LAYER_SIZES[layer - 1]; prevNeuron++) {
                     sum += this.output[layer - 1][prevNeuron] * this.weights[layer][neuron][prevNeuron];
                 }
-                if (neuron >= super.NETWORK_LAYER_SIZES[layer] - this.memoryWidth) {
+                if (neuron >= super.NETWORK_LAYER_SIZES[layer] - this.memoryWidth && layer < this.NETWORK_SIZE - 1) {
                     if (sum < 0 || sum > this.memoryLength) { // default to no value
                         sum = 0;
                     } else {
+                        System.out.println("Set: " + this.trainingSetNum + ", sum: " + sum + ", layer: " + layer);
+                        if (this.trainingSetNum - sum > 0) { // is referencing an existing neuron
+                            reference[(int) (this.trainingSetNum - sum)][layer - 1].add(
+                                    new int[] { this.trainingSetNum, super.NETWORK_LAYER_SIZES[layer] - 1 - neuron });
+                        }
                         sum = this.memory[(int) sum][super.NETWORK_LAYER_SIZES[layer] - 1 - neuron]; // the sum is the
                                                                                                      // decider of what
                                                                                                      // value the memory
                                                                                                      // returns
-                        if (trainingSetNum != 0) {
-                            reference[(int) (this.trainingSetNum - sum - 1)][layer].add(
-                                    new int[] { this.trainingSetNum, super.NETWORK_LAYER_SIZES[layer] - 1 - neuron });
-                            ;
-                        }
+                        
                     }
                 }
                 this.output[layer][neuron] = AF.activator(sum);
