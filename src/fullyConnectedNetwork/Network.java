@@ -14,7 +14,7 @@ import genetics.GeneticNetwork;
 
 public class Network {
 
-    public static double LEARNING_RATE = 0.00003;
+    public static double LEARNING_RATE = 0.0003;
 
     public final ActivationFunction ACTIVATION_FUNCTION;
     public final double multiplier;
@@ -55,8 +55,8 @@ public class Network {
         set.addData(new double[]{0, 1}, new double[]{0.5, 0.15});
         set.addData(new double[]{0, 1}, new double[]{0.5, 0.10});
         set.addData(new double[]{0, 1}, new double[]{0.5, 0.5});
-        
-        net.train(set, 1000, set.size());
+
+        net.train(set, 100000, set.size());
     }
     
     public Network(ActivationFunction ActivationFunction, int... NETWORK_LAYER_SIZES) {

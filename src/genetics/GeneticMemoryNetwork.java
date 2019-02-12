@@ -148,14 +148,18 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
     public void backpropError(double[] target) {
         // create the error signal of the final layer based uppon the target
         for (int neuron = 0; neuron < this.NETWORK_LAYER_SIZES[this.NETWORK_SIZE - 1]; neuron++) {
-            this.error_signal[this.NETWORK_SIZE
-                    - 1][neuron] = ((this.output[this.NETWORK_SIZE - 1][neuron] - target[neuron])
-                            * this.output_derivative[this.NETWORK_SIZE - 1][neuron]);
-            if(this.trainingSetNum != this.memoryError.length && this.OUTPUT_SIZE - this.memoryWidth > 0){// if it's not the final set and it is a memory neuron
+            //System.out.println("Set: " + this.trainingSetNum + ", neuron: " + neuron + ", width: " + this.memoryWidth);
+            if(neuron < this.OUTPUT_SIZE - this.memoryWidth){
+                this.error_signal[this.NETWORK_SIZE
+                        - 1][neuron] = ((this.output[this.NETWORK_SIZE - 1][neuron] - target[neuron])
+                                * this.output_derivative[this.NETWORK_SIZE - 1][neuron]);
+            }else if(this.trainingSetNum != this.memoryError.length){// If it's not the final set and it is a memory neuron
                for(int ref = 0; ref < this.reference[this.trainingSetNum][this.OUTPUT_SIZE - this.memoryWidth - 1].size(); ref++){
                     int[] pair = this.reference[this.trainingSetNum][this.OUTPUT_SIZE - this.memoryWidth - 1].get(ref);
-                    this.error_signal[this.NETWORK_SIZE - 1][neuron] += this.memoryError[pair[0]][pair[1]][this.memoryWidth - neuron - 1];
+                    this.error_signal[this.NETWORK_SIZE - 1][neuron] += this.memoryError[pair[0]][pair[1]][this.memoryWidth + neuron -this.OUTPUT_SIZE];
                 }
+            }else{ // If it's a final set memory neuron, there can be no determining error
+                this.error_signal[this.NETWORK_SIZE - 1][neuron] = 0;
             }
         }
         /*
@@ -186,7 +190,6 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
                     if (sum < 0 || sum > this.memoryLength) { // default to no value
                         sum = 0;
                     } else {
-                        System.out.println("Set: " + this.trainingSetNum + ", sum: " + sum + ", layer: " + layer);
                         if (this.trainingSetNum - sum > 0) { // is referencing an existing neuron
                             reference[(int) (this.trainingSetNum - sum)][layer - 1].add(
                                     new int[] { this.trainingSetNum, super.NETWORK_LAYER_SIZES[layer] - 1 - neuron });
