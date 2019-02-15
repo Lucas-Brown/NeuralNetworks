@@ -95,9 +95,9 @@ public class TrainSet {
     }
 
     public TrainSet extractBatch(int size) {
-        if(size > 0 && size <= this.size()) {
+        if(size > 0 && size < this.size()) {
             TrainSet set = new TrainSet(INPUT_SIZE, OUTPUT_SIZE);
-            Integer[] ids = NetworkTools.randomValues(0,this.size() - 1, size);
+            Integer[] ids = NetworkTools.randomValues(0, this.size() - 1, size);
             for(Integer i:ids) {
                 set.addData(this.getInput(i),this.getOutput(i));
             }

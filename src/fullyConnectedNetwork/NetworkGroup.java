@@ -188,7 +188,7 @@ public class NetworkGroup{
 	}
 
 	public double MSE(double[] input, double[] target) {
-        double[] output = this.calculate(input);
+		double[] output = this.calculate(input);
         double v = 0;
         for (int i = 0; i < target.length; i++) {
             v += (target[i] - output[i]) * (target[i] - output[i]);

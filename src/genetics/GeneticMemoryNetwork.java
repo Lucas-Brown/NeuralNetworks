@@ -18,7 +18,7 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
     public int memoryLength, memoryWidth;
     private double memory[][];
     private IntArrList[][] reference;
-    private double[][][] memoryError;
+    private double[][][] memoryError, memoryDerivative;
     private int trainingSetNum;
 
     public GeneticMemoryNetwork(ActivationFunction ActivationFunction, double multiplier, int... NETWORK_LAYER_SIZES) {
@@ -43,9 +43,7 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
         this.memoryLength = memoryLength;
         this.memoryWidth = memoryWidth;
         this.memory = new double[this.memoryLength][this.memoryWidth];
-        for (double[] mem : this.memory) {
-            Arrays.fill(mem, 1);
-        }
+        this.setMemory(1);
     }
 
     /*
@@ -61,12 +59,15 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
         }
         double[][][] outputs;
         for (int i = 0; i < loops; i++) {
+            this.setMemory(1); // reset the memory every itteration
             TrainSet batch = set.extractBatch(batch_size);
             outputs = new double[batch.size()][][];
             this.reference = new IntArrList[batch.size()][this.NETWORK_SIZE - 2]; //we do not include the input or the output layer
             this.memoryError = new double[batch.size()][][];
+            this.memoryDerivative = new double[batch.size()][][];
             for(int j = 0; j < batch.size(); j++){
                 this.memoryError[j] = this.memory.clone();
+                this.memoryDerivative[j] = this.output_derivative.clone();
                 for(int k = 0; k < this.reference[j].length; k++){
                     this.reference[j][k] = new IntArrList();
                 }
@@ -76,13 +77,16 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
                 outputs[this.trainingSetNum] = this.output.clone(); // clone to ensure the entire array isn't referenced to
                                                                // one array
             }
+            double sum = 0;
             for(this.trainingSetNum = batch.size() - 1; this.trainingSetNum >= 0; this.trainingSetNum--){
+                this.output_derivative = this.memoryDerivative[this.trainingSetNum];
                 this.backpropError(batch.getOutput(this.trainingSetNum));
                 this.output = outputs[this.trainingSetNum];
                 this.error_signal = this.memoryError[this.trainingSetNum];
                 this.updateWeights(Network.LEARNING_RATE);
+                sum += this.trainingMSE(batch.getInput(this.trainingSetNum), batch.getOutput(this.trainingSetNum));
             }
-            System.out.println(this.MSE(batch));
+            //System.out.println(sum);
         }
     }
 
@@ -127,6 +131,10 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
         if (input.length != this.INPUT_SIZE) {
             return null;
         }
+        if(this.trainingSetNum == -1){
+            this.trainingSetNum = 0;
+            this.memoryDerivative = new double[1][][]; // just incase it wasn't initilized
+        }
         this.output[0] = input;
         this.loops(this.ACTIVATION_FUNCTION);
 
@@ -156,7 +164,8 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
             }else if(this.trainingSetNum != this.memoryError.length){// If it's not the final set and it is a memory neuron
                for(int ref = 0; ref < this.reference[this.trainingSetNum][this.OUTPUT_SIZE - this.memoryWidth - 1].size(); ref++){
                     int[] pair = this.reference[this.trainingSetNum][this.OUTPUT_SIZE - this.memoryWidth - 1].get(ref);
-                    this.error_signal[this.NETWORK_SIZE - 1][neuron] += this.memoryError[pair[0]][pair[1]][this.memoryWidth + neuron -this.OUTPUT_SIZE];
+                    //System.out.println(this.memoryError[pair[0]][pair[1]][this.memoryWidth + neuron - this.OUTPUT_SIZE]);
+                    this.error_signal[this.NETWORK_SIZE - 1][neuron] += this.memoryError[pair[0]][pair[1]][this.memoryWidth + neuron - this.OUTPUT_SIZE];
                 }
             }else{ // If it's a final set memory neuron, there can be no determining error
                 this.error_signal[this.NETWORK_SIZE - 1][neuron] = 0;
@@ -203,6 +212,7 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
                 }
                 this.output[layer][neuron] = AF.activator(sum);
                 this.output_derivative[layer][neuron] = AF.derivative(sum);
+                this.memoryDerivative[this.trainingSetNum] = this.output_derivative.clone();
             }
         }
     }
@@ -226,6 +236,12 @@ public class GeneticMemoryNetwork extends GeneticNetwork {
                 networkLayers[layer] -= memoryWidth;
             }
             return networkLayers;
+        }
+    }
+
+    public void setMemory(double val){
+        for (double[] mem : this.memory) {
+            Arrays.fill(mem, 1);
         }
     }
 

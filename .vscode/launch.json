@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - Population",
+            "request": "launch",
+            "mainClass": "genetics.Population",
+            "projectName": "NeuralNetworks"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - Network",
             "request": "launch",
             "mainClass": "fullyConnectedNetwork.Network",

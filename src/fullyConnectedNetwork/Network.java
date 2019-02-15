@@ -8,13 +8,11 @@ import trainSet.TrainSet;
 
 import java.util.Arrays;
 
-import genetics.Brain;
 import genetics.GeneticMemoryNetwork;
-import genetics.GeneticNetwork;
 
 public class Network {
 
-    public static double LEARNING_RATE = 0.0003;
+    public static double LEARNING_RATE = 0.03;
 
     public final ActivationFunction ACTIVATION_FUNCTION;
     public final double multiplier;
@@ -54,9 +52,10 @@ public class Network {
         set.addData(new double[]{0, 1}, new double[]{0.5, 0.2});
         set.addData(new double[]{0, 1}, new double[]{0.5, 0.15});
         set.addData(new double[]{0, 1}, new double[]{0.5, 0.10});
-        set.addData(new double[]{0, 1}, new double[]{0.5, 0.5});
+        set.addData(new double[]{0, 1}, new double[]{0.5, 0.05});
 
-        net.train(set, 100000, set.size());
+        net.train(set, 1000, set.size());
+        net.printResults(set);
     }
     
     public Network(ActivationFunction ActivationFunction, int... NETWORK_LAYER_SIZES) {
